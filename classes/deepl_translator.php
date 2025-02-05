@@ -40,6 +40,7 @@ class deepl_translator {
 
         if ($response) {
             $decoded = json_decode($response, true);
+            print_r($decoded);
             return $decoded['translations'][0]['text'] ?? null;
         }
         return null;

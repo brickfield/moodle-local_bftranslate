@@ -63,8 +63,8 @@ class bftranslatelib {
         echo('<hr><hr>');
 
         $work = new deepl_translator($config->deepl_api_key);
-        $work->translate_batch($missing, $targetlang);
-        print_r($work);
+        $results = $work->translate_batch($missing, $targetlang);
+        print_r($results);
     }
 }
 
