@@ -24,23 +24,26 @@ class deepl_translator {
 
     private function translate($text, $target_lang) {
         $post_data = [
-            'auth_key' => $this->api_key,
-            'text' => $text,
+            //'auth_key' => $this->api_key,
+            'text' => [$text],
             'target_lang' => strtoupper($target_lang)
         ];
+        $string = json_encode($post_data);
 
         $ch = curl_init($this->api_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $string);
+        $authstring = 'Authorization: DeepL-Auth-Key ' . $this->api_key;
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [$authstring, 'Content-Type: application/json']);
+        //curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_data));
+        //curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
 
         $response = curl_exec($ch);
         curl_close($ch);
 
         if ($response) {
             $decoded = json_decode($response, true);
-            print_r($decoded);
             return $decoded['translations'][0]['text'] ?? null;
         }
         return null;

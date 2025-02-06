@@ -45,11 +45,10 @@ class bftranslatelib {
         $englishstrings = get_string_manager()->load_component_strings($plugin, 'en');
         $targetstrings = get_string_manager()->load_component_strings($plugin, $targetlang);
 
-        $englishstrings = array_slice($englishstrings, 0, 10);
+        $englishstrings = array_slice($englishstrings, 0, 50);
 
         $missing = [];
         foreach ($englishstrings as $key => $string) {
-            //echo ('key '.$key.', ');
             // Check if the string is missing or empty or identical in the target language
             if ((!isset($targetstrings[$key])
                 || empty(trim($targetstrings[$key])))
@@ -57,10 +56,8 @@ class bftranslatelib {
                 $missing[$key] = $string;
             }
         }
-        //print_r($englishstrings);
-        //print_r($targetstrings);
         print_r($missing);
-        echo('<hr><hr>');
+        echo('<hr>');
 
         $work = new deepl_translator($config->deepl_api_key);
         $results = $work->translate_batch($missing, $targetlang);
