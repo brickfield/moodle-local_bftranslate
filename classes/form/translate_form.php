@@ -25,10 +25,12 @@ class translate_form extends \moodleform {
 
         $mform->addElement('select', 'plugin', get_string('selectplugin', 'local_bftranslate'), $plugins);
         $mform->setType('plugin', PARAM_ALPHANUMEXT);
+        $mform->addHelpButton('plugin', 'selectplugin', 'local_bftranslate');
 
         $mform->addElement('select', 'targetlang',
             get_string('selectlanguage', 'local_bftranslate'), $targetlanguages);
         $mform->setType('targetlang', PARAM_ALPHANUMEXT);
+        $mform->addHelpButton('targetlang', 'selectlanguage', 'local_bftranslate');
 
         $batchlimit = [0 => 0, 5 => 5, 10 => 10, 50 => 50, 100 => 100];
         $mform->addElement('select', 'batchlimit', get_string('selectbatchlimit', 'local_bftranslate'), $batchlimit);
