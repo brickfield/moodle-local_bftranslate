@@ -17,23 +17,144 @@ class bftranslatelib {
             'report_editlicence',
             'local_bfnewwindow',
             'local_bfguides',
+            'assignfeedback_downloadbysurname',
+            'assignsub_bfcompass',
+            'block_badgeawarder',
+            'block_category_results',
+            'block_audiencemessage',
+            'block_category_overview',
+            'block_course_group_upload',
+            'block_inviteuser',
+            'block_myoverview2',
+            'block_questionnaire_manager',
+            'block_quicklinks',
+            'block_reading_list',
+            'block_reminders',
+            'gradereport_markingguide',
+            'gradereport_rubrics',
+            'local_bfqanda',
+            'local_bfquicklinks',
+            'local_hsa',
+            'mod_board',
+            'mod_compass',
+            'mod_election',
+            'mod_ltssubcourse',
+            'mod_planner',
+            'mod_referendum',
+            'mod_nomination',
+            'report_bfactivitytracking',
+            'report_bfbadgeawarder',
+            'report_bfcompetencyawarder',
+            'report_bfcompreport',
+            'report_compassstats',
+            'report_supportservice',
+            'report_tagstimeline',
+            'tool_bfcompass',
+            'tool_bfusertour',
+            'tool_coursetagger',
+            'tool_bfcompexport',
         ];
 
         return $plugins;
     }
 
-    public static function get_plugins_dropdown() {
+    public static function get_plugins_dropdown_array() {
         $bfplugins = static::get_plugins();
 
         $plugins = ['' => get_string('select')];
         foreach ($bfplugins as $key => $bfplugin) {
-            $plugins[$bfplugin] = get_string('pluginname', $bfplugin);
+            // Lang strings only retrievable from installed plugins on full plugins list.
+            if (get_string_manager()->string_exists('pluginname', $bfplugin)) {
+                $plugins[$bfplugin] = get_string('pluginname', $bfplugin);
+            }
         }
 
         return $plugins;
     }
 
-    public static function process_translation($plugin, $targetlang) {
+    public static function get_languages() {
+        $languages = [
+            'ar',
+            'bg',
+            'cs',
+            'da',
+            'de',
+            'el',
+            'es',
+            'et',
+            'fi',
+            'fr',
+            'hu',
+            'id',
+            'it',
+            'ja',
+            'ko',
+            'lt',
+            'lv',
+            'nb',
+            'nl',
+            'pl',
+            'pt-br',
+            'pt-pt',
+            'ro',
+            'ru',
+            'sk',
+            'sl',
+            'sv',
+            'tr',
+            'uk',
+            'zh-hans',
+            'zh-hant',
+        ];
+
+        // Reverse to have lang codes as keys.
+        $languages = array_flip($languages);
+
+        return $languages;
+    }
+
+    public static function get_language_mappings() {
+        $languages = [
+            'pt' => 'pt-pt',
+            'en' => 'en-gb',
+            'zh_cn' => 'zh-hans',
+            'zh_tw' => 'zh-hant',
+        ];
+
+        return $languages;
+    }
+
+    public static function get_installed_languages() {
+
+        $stringmgr = get_string_manager();
+        $languages = $stringmgr->get_list_of_translations();
+        // Adding specific mappings between Moodle lang codes and external API requirements.
+        $mappings = static::get_language_mappings();
+        foreach ($mappings as $key => $value) {
+            if (isset($languages[$key])) {
+                $languages[$value] = $languages[$key];
+            }
+        }
+
+        return $languages;
+    }
+
+    public static function get_languages_dropdown_array() {
+        $targetlanguages = static::get_languages();
+
+        $stringmgr = get_string_manager();
+        $languages = static::get_installed_languages();
+        $languages = array_intersect_key($languages, $targetlanguages);
+        $languages = array_merge(['' => get_string('select')], $languages);
+
+        return $languages;
+    }
+
+    public static function process_translation($formdata): array {
+
+        $plugin = $formdata->plugin;
+        $targetlang = $formdata->targetlang;
+        $batchlimit = $formdata->batchlimit;
 
         $config = get_config('local_bftranslate');
         $info = \core_plugin_manager::instance()->get_plugin_info($plugin);
@@ -45,7 +166,9 @@ class bftranslatelib {
         $englishstrings = get_string_manager()->load_component_strings($plugin, 'en');
         $targetstrings = get_string_manager()->load_component_strings($plugin, $targetlang);
 
-        $englishstrings = array_slice($englishstrings, 0, 50);
+        if ($batchlimit > 0) {
+            $englishstrings = array_slice($englishstrings, 0, $batchlimit);
+        }
 
         $missing = [];
         foreach ($englishstrings as $key => $string) {
@@ -56,12 +179,11 @@ class bftranslatelib {
                 $missing[$key] = $string;
             }
         }
-        print_r($missing);
-        echo('<hr>');
 
         $work = new deepl_translator($config->deepl_api_key);
         $results = $work->translate_batch($missing, $targetlang);
-        print_r($results);
+
+        return [$missing, $results];
     }
 }
 

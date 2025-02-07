@@ -18,18 +18,21 @@ class translate_form extends \moodleform {
     public function definition() {
         $mform = $this->_form;
 
-        // Get list of installed plugins
-        $plugins = \local_bftranslate\bftranslatelib::get_plugins_dropdown();
-
-        $stringmgr = get_string_manager();
-        $languages = $stringmgr->get_list_of_translations();
-        $languages = array_merge(['' => get_string('select')], $languages);
+        // Get list of installed plugins.
+        $plugins = \local_bftranslate\bftranslatelib::get_plugins_dropdown_array();
+        // Get list of available target languages.
+        $targetlanguages = \local_bftranslate\bftranslatelib::get_languages_dropdown_array();
 
         $mform->addElement('select', 'plugin', get_string('selectplugin', 'local_bftranslate'), $plugins);
         $mform->setType('plugin', PARAM_ALPHANUMEXT);
 
-        $mform->addElement('select', 'targetlang', get_string('selectlanguage', 'local_bftranslate'), $languages);
+        $mform->addElement('select', 'targetlang',
+            get_string('selectlanguage', 'local_bftranslate'), $targetlanguages);
         $mform->setType('targetlang', PARAM_ALPHANUMEXT);
+
+        $batchlimit = [0 => 0, 5 => 5, 10 => 10, 50 => 50, 100 => 100];
+        $mform->addElement('select', 'batchlimit', get_string('selectbatchlimit', 'local_bftranslate'), $batchlimit);
+        $mform->setType('batchlimit', PARAM_INT);
 
         $this->add_action_buttons(true, get_string('translate', 'local_bftranslate'));
     }

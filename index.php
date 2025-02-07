@@ -3,6 +3,7 @@
 //use local_bftranslate\deepl_translator;
 use \local_bftranslate\form\translate_form;
 use local_bftranslate\bftranslatelib;
+use local_bftranslate\displaytable;
 use core_plugin_manager;
 
 require('../../config.php');
@@ -27,11 +28,14 @@ $mform = new \local_bftranslate\form\translate_form();
 // Handle the form submission.
 $formdata = $mform->get_data();
 if ($formdata !== null) {
-    bftranslatelib::process_translation($plugin, $targetlang);
+    $results = bftranslatelib::process_translation($formdata);
 
-} else {
-
+    $uniqueid = 'local_bftranslate_displaytable';
+    new \local_bftranslate\displaytable($uniqueid, [],
+        ['plugin' => $plugin, 'targetlang' => $targetlang,
+            'source' => $results[0], 'results' => $results[1]], $url);
 }
+
 $mform->display();
 
 echo $OUTPUT->footer();
