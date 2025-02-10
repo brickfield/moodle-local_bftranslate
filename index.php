@@ -33,7 +33,8 @@ if ($formdata !== null) {
     $uniqueid = 'local_bftranslate_displaytable';
     new \local_bftranslate\displaytable($uniqueid, [],
         ['plugin' => $plugin, 'targetlang' => $targetlang,
-            'source' => $results[0], 'results' => $results[1]], $url);
+            'source' => $results[0], 'results' => $results[1],
+            'selectoutput' => $formdata->selectoutput], $url);
 }
 
 $mform->display();

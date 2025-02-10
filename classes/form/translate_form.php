@@ -40,6 +40,10 @@ class translate_form extends \moodleform {
         $mform->addElement('select', 'batchlimit', get_string('selectbatchlimit', 'local_bftranslate'), $batchlimit);
         $mform->setType('batchlimit', PARAM_INT);
 
+        $mform->addElement('select', 'selectoutput',
+        get_string('selectoutput', 'local_bftranslate'), ['table' => 'Table', 'langstring' => 'PHP Language String']);
+        $mform->setType('selectoutput', PARAM_ALPHANUMEXT);
+
         $this->add_action_buttons(true, get_string('translate', 'local_bftranslate'));
     }
 

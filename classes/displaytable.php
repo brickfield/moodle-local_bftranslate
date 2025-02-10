@@ -84,6 +84,9 @@ class displaytable extends \flexible_table {
             'sourcestring',
             'targetstring',
         ];
+        if ($results['selectoutput'] == 'langstring') {
+            $columns = ['langstringformat'];
+        }
 
         $this->define_columns($columns);
         $this->no_sorting('all');
@@ -94,6 +97,9 @@ class displaytable extends \flexible_table {
             get_string('tableheader:sourcestring', 'local_bftranslate'),
             get_string('tableheader:targetstring', 'local_bftranslate'),
         ];
+        if ($results['selectoutput'] == 'langstring') {
+            $headers = [get_string('tableheader:langstring', 'local_bftranslate')];
+        }
 
         $this->define_headers($headers);
 
@@ -105,6 +111,13 @@ class displaytable extends \flexible_table {
             $row = ['key' => $key,
                 'sourcestring' => $string,
                 'targetstring' => $results['results'][$key]];
+            if ($results['selectoutput'] == 'langstring') {
+                $langdata = [
+                    'key' => $key,
+                    'value' => str_replace('\'', '\\\'', $results['results'][$key]),
+                ];
+                $row = ['langstringformat' => s(get_string('langstringformat', 'local_bftranslate', $langdata))];
+            }
             $testdata[] = $row;
         }
         $this->setup();
