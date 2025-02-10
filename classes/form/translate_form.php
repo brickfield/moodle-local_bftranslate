@@ -23,6 +23,10 @@ class translate_form extends \moodleform {
         // Get list of available target languages.
         $targetlanguages = \local_bftranslate\bftranslatelib::get_languages_dropdown_array();
 
+        $mform->addElement('select', 'selectapi',
+            get_string('selectapi', 'local_bftranslate'), ['deepl' => 'DeepL', 'azure' => 'Azure']);
+        $mform->setType('selectapi', PARAM_ALPHANUMEXT);
+
         $mform->addElement('select', 'plugin', get_string('selectplugin', 'local_bftranslate'), $plugins);
         $mform->setType('plugin', PARAM_ALPHANUMEXT);
         $mform->addHelpButton('plugin', 'selectplugin', 'local_bftranslate');

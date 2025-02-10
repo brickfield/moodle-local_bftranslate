@@ -3,6 +3,7 @@
 namespace local_bftranslate;
 
 use local_bftranslate\deepl_translator;
+use local_bftranslate\azure_translator;
 
 class bftranslatelib {
 
@@ -84,6 +85,7 @@ class bftranslatelib {
             'et',
             'fi',
             'fr',
+            'ga',
             'hu',
             'id',
             'it',
@@ -154,6 +156,7 @@ class bftranslatelib {
 
         $plugin = $formdata->plugin;
         $targetlang = $formdata->targetlang;
+        $api = $formdata->selectapi;
         $batchlimit = $formdata->batchlimit;
 
         $config = get_config('local_bftranslate');
@@ -180,8 +183,13 @@ class bftranslatelib {
             }
         }
 
-        $work = new deepl_translator($config->deepl_api_key);
-        $results = $work->translate_batch($missing, $targetlang);
+        if ($api == 'azure') {
+            $work = new azure_translator($config->azure_api_key);
+            $results = $work->translate_batch($missing, $targetlang);
+        } else {
+            $work = new deepl_translator($config->deepl_api_key);
+            $results = $work->translate_batch($missing, $targetlang);
+        }
 
         return [$missing, $results];
     }

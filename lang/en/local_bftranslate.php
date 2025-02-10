@@ -1,10 +1,15 @@
 <?php
 $string['pluginname'] = 'Plugin Translator';
+$string['apikey:deepl'] = 'DeepL API Key';
+$string['apikey:deepl_desc'] = 'Enter your DeepL API key to enable translations.';
+$string['apikey:azure'] = 'Azure API Key';
+$string['apikey:azure_desc'] = 'Enter your Azure API key to enable translations.';
 $string['emptyplugin'] = 'No Plugin Submitted';
 $string['emptytargetlang'] = 'No Target Language Submitted';
 $string['filename'] = 'Translator Download';
 $string['reporttitle'] = 'Translator Download Report';
 $string['selectbatchlimit'] = 'Select Optional Batch Limit';
+$string['selectapi'] = 'Select API';
 $string['selectplugin'] = 'Select Plugin';
 $string['selectplugin_help'] = 'Includes plugins which are both in the permitted list and installed.';
 $string['selectlanguage'] = 'Select Target Language';
@@ -15,5 +20,4 @@ $string['tableheader:sourcestring'] = 'Source String';
 $string['tableheader:targetstring'] = 'Target String';
 $string['translate'] = 'Translate';
 $string['translationsuccess'] = 'Translation successful!';
-$string['deeplapikey'] = 'DeepL API Key';
-$string['deeplapikey_desc'] = 'Enter your DeepL API key to enable translations.';
+
