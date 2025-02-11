@@ -22,11 +22,24 @@ class deepl_translator {
         return $translations;
     }
 
+    // Function to wrap placeholders with DeepL's notranslate tag
+    function protectPlaceholdersForDeepL($text) {
+        return preg_replace('/(\{\$a->[^}]+\})/', '<x>$1</x>', $text);
+    }
+
+    // Function to remove DeepL's notranslate tags from placeholders.
+    public function removeNotranslateTags($translatedText) {
+        return preg_replace('/<x>(.*?)<\/x>/', '$1', $translatedText);
+    }
+
     private function translate($text, $target_lang) {
+        $text = static::protectPlaceholdersForDeepL($text);
         $post_data = [
             //'auth_key' => $this->api_key,
             'text' => [$text],
-            'target_lang' => strtoupper($target_lang)
+            'target_lang' => strtoupper($target_lang),
+            'tag_handling' => 'xml',
+            'ignore_tags' => ['x'],
         ];
         $string = json_encode($post_data);
 
@@ -44,6 +57,9 @@ class deepl_translator {
 
         if ($response) {
             $decoded = json_decode($response, true);
+            if (isset($decoded['translations'][0]['text'])) {
+                $decoded['translations'][0]['text'] = static::removeNotranslateTags($decoded['translations'][0]['text']);
+            }
             return $decoded['translations'][0]['text'] ?? null;
         }
         return null;
