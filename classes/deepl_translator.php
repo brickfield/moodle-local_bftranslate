@@ -4,7 +4,7 @@ namespace local_bftranslate;
 
 class deepl_translator {
     private $api_key;
-    private $api_url = 'https://api-free.deepl.com/v2/translate';
+    private $api_url = 'https://api.deepl.com/v2/translate';
 
     public function __construct($api_key) {
         $this->api_key = $api_key;
