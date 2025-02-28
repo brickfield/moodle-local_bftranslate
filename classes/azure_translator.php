@@ -14,6 +14,11 @@ class azure_translator {
         $translations = [];
 
         foreach ($strings as $key => $text) {
+            // Skip empty strings, but still add to array for display in the table.
+            if ($text == '') {
+                $translations[$key] = '';
+                continue;
+            }
             $translated_text = $this->translate($text, $target_lang);
             if ($translated_text) {
                 $translations[$key] = $translated_text;
