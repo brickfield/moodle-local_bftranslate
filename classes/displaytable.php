@@ -73,10 +73,10 @@ class displaytable extends \flexible_table {
             $this->use_pages = true;
         }
 
-        if ($this->use_pages) {
+        // if ($this->use_pages) {
             // Setting pagesize for pagination.
-            //$this->pagesize(get_config('local_bftranslate', 'pagesize'), count($this->users));
-        }
+            // $this->pagesize(get_config('local_bftranslate', 'pagesize'), count($this->users));
+        // }
 
         // Setting up the tables columns.
         $columns = [
