@@ -29,12 +29,16 @@ $mform = new \local_bftranslate\form\translate_form();
 $formdata = $mform->get_data();
 if ($formdata !== null) {
     $results = bftranslatelib::process_translation($formdata);
+    if (empty($results)) {
+        echo $OUTPUT->notification(get_string('notranslationsneeded', 'local_bftranslate'), 'notifysuccess');
+    } else {
+        $uniqueid = 'local_bftranslate_displaytable';
+        new \local_bftranslate\displaytable($uniqueid, [],
+            ['plugin' => $plugin, 'targetlang' => $targetlang,
+                'source' => $results[0], 'results' => $results[1],
+                'selectoutput' => $formdata->selectoutput], $url);
+    }
 
-    $uniqueid = 'local_bftranslate_displaytable';
-    new \local_bftranslate\displaytable($uniqueid, [],
-        ['plugin' => $plugin, 'targetlang' => $targetlang,
-            'source' => $results[0], 'results' => $results[1],
-            'selectoutput' => $formdata->selectoutput], $url);
 }
 
 $mform->display();

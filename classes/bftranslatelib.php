@@ -208,6 +208,11 @@ class bftranslatelib {
             }
         }
 
+        // Return early if there are no strings to be translated.
+        if (empty($missing)) {
+            return [];
+        }
+
         if ($api == 'azure') {
             $work = new azure_translator($config->azure_api_key);
             $results = $work->translate_batch($missing, $targetlang);
