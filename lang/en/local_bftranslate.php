@@ -32,6 +32,7 @@ $string['emptyplugin'] = 'No Plugin Submitted';
 $string['emptytargetlang'] = 'No Target Language Submitted';
 $string['filename'] = 'Translator Download';
 $string['langstringformat'] = '$string[\'{$a->key}\'] = \'{$a->value}\';';
+$string['notranslationsneeded'] = 'All strings already exist in the target language.';
 $string['report:heading'] = 'Translation page';
 $string['reporttitle'] = 'Translator Download Report';
 $string['selectbatchlimit'] = 'Select Optional Batch Limit';
