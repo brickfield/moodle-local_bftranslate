@@ -1,13 +1,40 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace local_bftranslate;
 
 use local_bftranslate\deepl_translator;
 use local_bftranslate\azure_translator;
 
+/**
+ * Library class containing main functions.
+ *
+ * @package    local_bftranslate
+ * @author     Karen Holland <karen@brickfieldlabs.ie>
+ * @copyright  2025 onward Brickfield Education Labs Ltd, https://www.brickfield.ie
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class bftranslatelib {
 
-    public static function get_plugins() {
+    /**
+     * Returns an array of installed external plugins.
+     *
+     * @return array
+     */
+    public static function get_plugins(): array {
         $plugins = [
             'tool_bfplus',
             'accessibilityplustool_activityresults',
@@ -84,7 +111,12 @@ class bftranslatelib {
         return $plugins;
     }
 
-    public static function get_plugins_dropdown_array() {
+    /**
+     * Returns the values to populate the plugin dropdown.
+     *
+     * @return array
+     */
+    public static function get_plugins_dropdown_array(): array {
         $bfplugins = static::get_plugins();
 
         $plugins = ['' => get_string('select')];
@@ -98,7 +130,12 @@ class bftranslatelib {
         return $plugins;
     }
 
-    public static function get_languages() {
+    /**
+     * Return an array of language codes.
+     *
+     * @return array
+     */
+    public static function get_languages(): array {
         $languages = [
             'ar',
             'bg',
@@ -140,7 +177,12 @@ class bftranslatelib {
         return $languages;
     }
 
-    public static function get_language_mappings() {
+    /**
+     * Map specfic lang codes to the correct code.
+     *
+     * @return array
+     */
+    public static function get_language_mappings(): array {
         $languages = [
             'pt' => 'pt-pt',
             'en' => 'en-gb',
@@ -151,7 +193,12 @@ class bftranslatelib {
         return $languages;
     }
 
-    public static function get_installed_languages() {
+    /**
+     * Return an array of install languages.
+     *
+     * @return array
+     */
+    public static function get_installed_languages(): array {
 
         $stringmgr = get_string_manager();
         $languages = $stringmgr->get_list_of_translations();
@@ -166,7 +213,12 @@ class bftranslatelib {
         return $languages;
     }
 
-    public static function get_languages_dropdown_array() {
+    /**
+     * Returns the values to populate the languages dropdown.
+     *
+     * @return array
+     */
+    public static function get_languages_dropdown_array(): array {
         $targetlanguages = static::get_languages();
 
         $stringmgr = get_string_manager();
@@ -177,7 +229,13 @@ class bftranslatelib {
         return $languages;
     }
 
-    public static function process_translation($formdata): array {
+    /**
+     * Process the translation request.
+     *
+     * @param object $formdata
+     * @return array
+     */
+    public static function process_translation(object $formdata): array {
 
         $plugin = $formdata->plugin;
         $targetlang = $formdata->targetlang;
@@ -190,7 +248,7 @@ class bftranslatelib {
             return [];
         }
 
-        // Load all strings from the English language pack
+        // Load all strings from the English language pack.
         $englishstrings = get_string_manager()->load_component_strings($plugin, 'en');
         $targetstrings = get_string_manager()->load_component_strings($plugin, $targetlang);
 
@@ -200,7 +258,7 @@ class bftranslatelib {
 
         $missing = [];
         foreach ($englishstrings as $key => $string) {
-            // Check if the string is missing or empty or identical in the target language
+            // Check if the string is missing or empty or identical in the target language.
             if ((!isset($targetstrings[$key])
                 || empty(trim($targetstrings[$key])))
                 || ($targetstrings[$key] == $string)) {
@@ -219,4 +277,3 @@ class bftranslatelib {
         return [$missing, $results];
     }
 }
-

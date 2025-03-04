@@ -1,16 +1,53 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace local_bftranslate;
 
+/**
+ * Handles the translations through the Azure API.
+ *
+ * @package    local_bftranslate
+ * @author     Karen Holland <karen@brickfieldlabs.ie>
+ * @copyright  2025 onward Brickfield Education Labs Ltd, https://www.brickfield.ie
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class azure_translator {
-    private $api_key;
-    private $api_url = 'https://api.cognitive.microsofttranslator.com/translate?api-version=3.0';
+    /** @var string Azure API key. */
+    private $apikey;
 
-    public function __construct($api_key) {
-        $this->api_key = $api_key;
+    /** @var string Azure API URL. */
+    private $apiurl = 'https://api.cognitive.microsofttranslator.com/translate?api-version=3.0';
+
+    /**
+     * Constructor.
+     *
+     * @param string $apikey
+     */
+    public function __construct($apikey) {
+        $this->apikey = $apikey;
     }
 
-    public function translate_batch($strings, $target_lang) {
+    /**
+     * Handles the batch translation.
+     *
+     * @param array $strings
+     * @param string $targetlang
+     * @return array
+     */
+    public function translate_batch(array $strings, string $targetlang): array {
         $translations = [];
 
         foreach ($strings as $key => $text) {
@@ -19,26 +56,40 @@ class azure_translator {
                 $translations[$key] = '';
                 continue;
             }
-            $translated_text = $this->translate($text, $target_lang);
-            if ($translated_text) {
-                $translations[$key] = $translated_text;
+            $translatedtext = $this->translate($text, $targetlang);
+            if ($translatedtext) {
+                $translations[$key] = $translatedtext;
             }
         }
-
         return $translations;
     }
 
-    // Function to wrap placeholders with Azure's notranslate tag.
-    public function protectPlaceholdersForAzure($text) {
+    /**
+     * Wrap placeholders with Azure's notranslate tag.
+     *
+     * @param string $text
+     * @return string|null
+     */
+    private function protect_placeholders_for_azure(string $text): ?string {
         return preg_replace('/(\{\$a->[^}]+\})/', '<span class="notranslate">$1</span>', $text);
     }
 
-    // Function to remove Azure's notranslate tags from placeholders.
-    public function removeNotranslateTags($translatedText) {
-        return preg_replace('/<span class="notranslate">(.*?)<\/span>/', '$1', $translatedText);
+    /**
+     * Remove Azure's notranslate tags from placeholders.
+     *
+     * @param string $translatedtext
+     * @return string|null
+     */
+    private function remove_notranslate_tags(string $translatedtext): ?string {
+        return preg_replace('/<span class="notranslate">(.*?)<\/span>/', '$1', $translatedtext);
     }
 
-    public function com_create_guid() {
+    /**
+     * Generate a random UUID.
+     *
+     * @return string
+     */
+    public function com_create_guid(): string {
           return sprintf( '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
               mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
               mt_rand( 0, 0xffff ),
@@ -48,11 +99,18 @@ class azure_translator {
           );
     }
 
-    private function translate($text, $target_lang) {
-        $text = static::protectPlaceholdersForAzure($text);
+    /**
+     * Translate the requested strings using the API.
+     *
+     * @param string $text
+     * @param string $targetlang
+     * @return string|null
+     */
+    private function translate(string $text, string $targetlang): ?string {
+        $text = static::protect_placeholders_for_azure($text);
         $string = "[{'Text': \"$text\"}]";
         // Lang needs to be added to local variable to avoid changing class variable.
-        $url = $this->api_url . "&to=" . $target_lang;
+        $url = $this->apiurl . "&to=" . $targetlang;
         $url .= "&textType=html";
         $string = json_encode([["Text" => $text]]);
 
@@ -60,7 +118,7 @@ class azure_translator {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $string);
-        $authstring = 'Ocp-Apim-Subscription-Key: ' . $this->api_key;
+        $authstring = 'Ocp-Apim-Subscription-Key: ' . $this->apikey;
         $region = 'Ocp-Apim-Subscription-Region: westeurope';
         curl_setopt($ch, CURLOPT_HTTPHEADER, [$authstring, $region, 'Content-Type: application/json']);
 
@@ -70,7 +128,7 @@ class azure_translator {
         if ($response) {
             $decoded = json_decode($response, true);
             if (isset($decoded[0]['translations'][0]['text'])) {
-                $decoded[0]['translations'][0]['text'] = static::removeNotranslateTags($decoded[0]['translations'][0]['text']);
+                $decoded[0]['translations'][0]['text'] = static::remove_notranslate_tags($decoded[0]['translations'][0]['text']);
             }
             return $decoded[0]['translations'][0]['text'] ?? null;
         }
