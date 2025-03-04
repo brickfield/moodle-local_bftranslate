@@ -93,15 +93,22 @@ class bftranslatelib {
         }
 
         // Retrieve an array of all installed plugins that are not part of core.
-        // $allplugins = \core_plugin_manager::instance()->get_plugins();
-        // $externalplugins = [];
-        // foreach ($allplugins as $type => $list) {
-        //     foreach ($list as $name => $plugin) {
-        //         if (!$plugin->is_standard()) {
-        //             $externalplugins[] = $type . '_' .$name;
-        //         }
-        //     }
-        // }
+        $allplugins = \core_plugin_manager::instance()->get_plugins();
+        $installedplugins = [];
+        foreach ($allplugins as $type => $list) {
+            foreach ($list as $name => $plugin) {
+                if (!$plugin->is_standard()) {
+                    $installedplugins[] = $type . '_' .$name;
+                }
+            }
+        }
+
+        // Check that the plugins are installed.
+        foreach ($plugins as $key => $plugin) {
+            if (!in_array($plugin, $installedplugins)) {
+                unset($plugins[$key]);
+            }
+        }
 
         return $plugins;
     }
@@ -116,6 +123,7 @@ class bftranslatelib {
                 $plugins[$bfplugin] = get_string('pluginname', $bfplugin);
             }
         }
+        asort($plugins);
 
         return $plugins;
     }
