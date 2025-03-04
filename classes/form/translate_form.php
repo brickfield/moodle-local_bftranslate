@@ -58,6 +58,11 @@ class translate_form extends \moodleform {
         get_string('selectoutput', 'local_bftranslate'), ['table' => 'Table', 'langstring' => 'PHP Language String']);
         $mform->setType('selectoutput', PARAM_ALPHANUMEXT);
 
+        $mform->addElement('header', 'snippetheader', get_string('snippet:header', 'local_bftranslate'));
+        $mform->setExpanded('snippetheader', false);
+        $mform->addElement('text', 'snippettext', get_string('snippet:text', 'local_bftranslate'), 'size="40"');
+        $mform->setType('snippettext', PARAM_TEXT);
+
         $this->add_action_buttons(true, get_string('translate', 'local_bftranslate'));
     }
 
@@ -71,12 +76,18 @@ class translate_form extends \moodleform {
     public function validation($data, $files) {
         $errors = [];
 
-        if ($data['plugin'] === '') {
-            $errors['plugin'] = get_string('emptyplugin', 'local_bftranslate');
-        }
+        if ($data['snippettext'] === '') {
+            if ($data['plugin'] === '') {
+                $errors['plugin'] = get_string('emptyplugin', 'local_bftranslate');
+            }
 
-        if ($data['targetlang'] === '') {
-            $errors['targetlang'] = get_string('emptytargetlang', 'local_bftranslate');
+            if ($data['targetlang'] === '') {
+                $errors['targetlang'] = get_string('emptytargetlang', 'local_bftranslate');
+            }
+        } else {
+            if ($data['targetlang'] === '') {
+                $errors['targetlang'] = get_string('emptytargetlang', 'local_bftranslate');
+            }
         }
 
         return $errors;

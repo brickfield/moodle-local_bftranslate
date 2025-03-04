@@ -64,9 +64,13 @@ class displaytable extends \flexible_table {
         $this->tdir = optional_param($this->request[TABLE_VAR_DIR], '', PARAM_INT);
         $this->tsort = optional_param($this->request[TABLE_VAR_SORT], '', PARAM_ALPHANUMEXT);
         $langdesc = $languages[$results['targetlang']] ?? $languages[$mappings[$results['targetlang']]];
-        $captionparams = ['plugin' => get_string('pluginname', $results['plugin']),
-            'targetlang' => $langdesc];
-        $caption = get_string('tablecaption', 'local_bftranslate', $captionparams);
+        if ($results['plugin'] !== '') {
+            $captionparams = ['plugin' => get_string('pluginname', $results['plugin']),
+                'targetlang' => $langdesc];
+            $caption = get_string('tablecaption', 'local_bftranslate', $captionparams);
+        } else {
+            $caption = get_string('tablecaption_snippet', 'local_bftranslate', $langdesc);
+        }
         $this->set_caption($caption, []);
 
         if (get_config('local_bftranslate', 'pagesize') > 0) {

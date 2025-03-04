@@ -272,7 +272,22 @@ class bftranslatelib {
         $targetlang = $formdata->targetlang;
         $api = $formdata->selectapi;
         $batchlimit = $formdata->batchlimit;
+        $snippet = $formdata->snippettext;
         $config = get_config('local_bftranslate');
+
+        // If snippet has data, only translate that string and return.
+        if ($snippet != '') {
+            $missing = ['snippet' => $snippet];
+            if ($api == 'azure') {
+                $work = new azure_translator($config->azure_api_key);
+                $results = $work->translate_batch($missing, $targetlang);
+            } else {
+                $work = new deepl_translator($config->deepl_api_key);
+                $results = $work->translate_batch($missing, $targetlang);
+            }
+            return [$missing, $results];
+        }
+
         $info = \core_plugin_manager::instance()->get_plugin_info($plugin);
         $parts = explode('_', $plugin);
 
