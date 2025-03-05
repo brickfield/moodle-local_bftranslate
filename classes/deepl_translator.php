@@ -95,7 +95,7 @@ class deepl_translator {
         $text = static::protect_placeholders_for_deepl($text);
         $postdata = [
             'text' => [$text],
-            'targetlang' => strtoupper($targetlang),
+            'target_lang' => strtoupper($targetlang),
             'tag_handling' => 'xml',
             'ignore_tags' => ['x'],
         ];
