@@ -318,4 +318,68 @@ class bftranslatelib {
 
         return [$missing, $results];
     }
+
+    /**
+     * Handles saving the translations to the language file.
+     *
+     * @param array $translations
+     * @param string $plugin
+     * @param string $targetlang
+     */
+    public static function save_translation(array $translations, string $plugin, string $targetlang) {
+        global $CFG;
+
+        // Determine the language file location.
+        $langdir = "$CFG->dataroot/lang/$targetlang";
+        $langfile = "$langdir/$plugin.php";
+
+        // Ensure the language directory exists.
+        if (!file_exists($langdir)) {
+            mkdir($langdir, 0777, true);
+        }
+
+        // Read existing strings using file parsing.
+        $existingstrings = [];
+        if (file_exists($langfile)) {
+            $content = file_get_contents($langfile);
+            preg_match_all("/\\\$string\\['(.+?)'\\]\\s*=\\s*'(.*?)';/s", $content, $matches, PREG_SET_ORDER);
+            foreach ($matches as $match) {
+                $existingstrings[$match[1]] = $match[2];
+            }
+        }
+
+        // Merge and sort translations, ensuring 'pluginname' remains first.
+        $mergedstrings = array_merge($existingstrings, $translations);
+        if (isset($mergedstrings['pluginname'])) {
+            $pluginname = $mergedstrings['pluginname'];
+            unset($mergedstrings['pluginname']);
+            ksort($mergedstrings);
+            $mergedstrings = ['pluginname' => $pluginname] + $mergedstrings;
+        } else {
+            ksort($mergedstrings);
+        }
+
+        // Prepare language file content.
+        $content = "<?php\n";
+        $content .= "// This file is part of Moodle - http://moodle.org/\n//\n";
+        $content .= "// Moodle is free software: you can redistribute it and/or modify\n";
+        $content .= "// it under the terms of the GNU General Public License as published by\n";
+        $content .= "// the Free Software Foundation, either version 3 of the License, or\n";
+        $content .= "// (at your option) any later version.\n//\n";
+        $content .= "// Moodle is distributed in the hope that it will be useful,\n";
+        $content .= "// but WITHOUT ANY WARRANTY; without even the implied warranty of\n";
+        $content .= "// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n";
+        $content .= "// GNU General Public License for more details.\n//\n";
+        $content .= "// You should have received a copy of the GNU General Public License\n";
+        $content .= "// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.\n\n";
+        $content .= "/**\n * Language strings for {$plugin}.\n";
+        $content .= " *\n * @package    {$plugin}\n * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later\n */\n\n";
+
+        foreach ($mergedstrings as $key => $value) {
+            $content .= "\$string['" . $key . "'] = '" . addslashes($value) . "';\n";
+        }
+
+        // Write sorted content to the language file.
+        file_put_contents($langfile, $content);
+    }
 }

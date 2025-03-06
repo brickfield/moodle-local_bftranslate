@@ -37,6 +37,7 @@ $string['langstringformat'] = '$string[\'{$a->key}\'] = \'{$a->value}\';';
 $string['notranslationsneeded'] = 'All strings already exist in the target language.';
 $string['report:heading'] = 'Translation page';
 $string['reporttitle'] = 'Translator Download Report';
+$string['savechanges'] = 'Save Changes';
 $string['selectbatchlimit'] = 'Select Optional Batch Limit';
 $string['selectapi'] = 'Select API';
 $string['selectplugin'] = 'Select Plugin';
