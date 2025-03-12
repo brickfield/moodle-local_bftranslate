@@ -116,14 +116,15 @@ class bftranslatelib {
     public static function get_plugins_dropdown_array() {
         $bfplugins = static::get_plugins();
 
-        $plugins = ['' => get_string('select')];
+        $plugins = [];
         foreach ($bfplugins as $key => $bfplugin) {
             // Lang strings only retrievable from installed plugins on full plugins list.
             if (get_string_manager()->string_exists('pluginname', $bfplugin)) {
                 $plugins[$bfplugin] = get_string('pluginname', $bfplugin);
             }
         }
-        asort($plugins);
+        asort($plugins, SORT_STRING | SORT_FLAG_CASE);
+        $plugins = ['' => get_string('select')] + $plugins;
 
         return $plugins;
     }
