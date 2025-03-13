@@ -49,7 +49,7 @@ if ($save) {
     $decodedtranslations = [];
 
     foreach ($translations as $key => $value) {
-        $decodedkey = base64_decode(str_replace(['-','_'], ['+','/'], $key));
+        $decodedkey = base64_decode(str_replace(['-', '_'], ['+', '/'], $key));
         $decodedtranslations[$decodedkey] = $value;
     }
     $saveresults = bftranslatelib::save_translation($decodedtranslations, $plugin, $targetlang);

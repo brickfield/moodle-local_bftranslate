@@ -109,15 +109,15 @@ class displaytable extends \flexible_table {
         $testdata = [];
         foreach ($results['source'] as $key => $string) {
             // Encode key in case of special chars.
-            $encodedkey = str_replace(['+','/','='], ['-','_',''], base64_encode($key));
+            $encodedkey = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($key));
             $row = [
                 'key' => $key,
                 'sourcestring' => $string,
                 'targetstring' => \html_writer::tag('textarea', s($results['results'][$key]), [
                     'name' => "translations[" . $encodedkey . "]",
                     'rows' => 2,
-                    'cols' => 50
-                ])
+                    'cols' => 50,
+                ]),
             ];
             if ($results['selectoutput'] == 'langstring') {
                 $langdata = [
@@ -141,7 +141,7 @@ class displaytable extends \flexible_table {
             'type' => 'submit',
             'name' => 'save',
             'value' => 'submit',
-            'class' => 'btn btn-primary'
+            'class' => 'btn btn-primary',
         ]);
         echo \html_writer::end_div();
         echo \html_writer::end_tag('form');
