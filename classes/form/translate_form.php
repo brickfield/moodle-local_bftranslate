@@ -60,8 +60,8 @@ class translate_form extends \moodleform {
 
         $mform->addElement('header', 'snippetheader', get_string('snippet:header', 'local_bftranslate'));
         $mform->setExpanded('snippetheader', false);
-        $mform->addElement('text', 'snippettext', get_string('snippet:text', 'local_bftranslate'), 'size="40"');
-        $mform->setType('snippettext', PARAM_TEXT);
+        $mform->addElement('textarea', 'snippettext', get_string('snippet:text', 'local_bftranslate'), 'rows="4", cols="80"');
+        $mform->setType('snippettext', PARAM_RAW);
 
         $this->add_action_buttons(true, get_string('translate', 'local_bftranslate'));
     }

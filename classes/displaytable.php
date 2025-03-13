@@ -113,8 +113,8 @@ class displaytable extends \flexible_table {
         $testdata = [];
         foreach ($results['source'] as $key => $string) {
             $row = ['key' => $key,
-                'sourcestring' => $string,
-                'targetstring' => $results['results'][$key]];
+                'sourcestring' => s(format_text($string, FORMAT_HTML)),
+                'targetstring' => s(format_text($results['results'][$key], FORMAT_HTML))];
             if ($results['selectoutput'] == 'langstring') {
                 $langdata = [
                     'key' => $key,
@@ -134,4 +134,6 @@ class displaytable extends \flexible_table {
             get_string('reporttitle', 'local_bftranslate')
         );
     }
+
+
 }

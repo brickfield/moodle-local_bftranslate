@@ -272,7 +272,7 @@ class bftranslatelib {
         $targetlang = $formdata->targetlang;
         $api = $formdata->selectapi;
         $batchlimit = $formdata->batchlimit;
-        $snippet = $formdata->snippettext;
+        $snippet = clean_text($formdata->snippettext);
         $config = get_config('local_bftranslate');
 
         // If snippet has data, only translate that string and return.
