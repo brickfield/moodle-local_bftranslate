@@ -272,10 +272,16 @@ class bftranslatelib {
         $targetlang = $formdata->targetlang;
         $api = $formdata->selectapi;
         $batchlimit = $formdata->batchlimit;
-
         $config = get_config('local_bftranslate');
         $info = \core_plugin_manager::instance()->get_plugin_info($plugin);
-        if (!file_exists($info->rootdir .'/lang/en/' . $plugin . '.php')) {
+        $parts = explode('_', $plugin);
+
+        if ($parts[0] == 'mod') {
+            $path = $info->rootdir .'/lang/en/' . $parts[1] . '.php';
+        } else {
+            $path = $info->rootdir .'/lang/en/' . $plugin . '.php';
+        }
+        if (!file_exists($path)) {
             return [];
         }
 
