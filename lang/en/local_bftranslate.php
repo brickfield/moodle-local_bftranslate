@@ -30,6 +30,8 @@ $string['apikey:azure'] = 'Azure API Key';
 $string['apikey:azure_desc'] = 'Enter your Azure API key to enable translations.';
 $string['emptyplugin'] = 'No Plugin Submitted';
 $string['emptytargetlang'] = 'No Target Language Submitted';
+$string['external_plugins'] = 'External Plugins';
+$string['external_plugins_desc'] = 'Enter a comma separated list of installed external plugins.';
 $string['filename'] = 'Translator Download';
 $string['langstringformat'] = '$string[\'{$a->key}\'] = \'{$a->value}\';';
 $string['notranslationsneeded'] = 'All strings already exist in the target language.';

@@ -108,6 +108,35 @@ class bftranslatelib {
             'tool_bfcompexport',
         ];
 
+        // Get plugins from config.
+        $config = get_config('local_bftranslate');
+        $pluginslist = array_map('trim', explode(',', $config->external_plugins));
+
+        // If plugin doesn't exist in the hardcoded array, then append to array.
+        foreach ($pluginslist as $extplugin) {
+            if (!in_array($extplugin, $plugins)) {
+                $plugins[] = $extplugin;
+            }
+        }
+
+        // Retrieve an array of all installed plugins that are not part of core.
+        $allplugins = \core_plugin_manager::instance()->get_plugins();
+        $installedplugins = [];
+        foreach ($allplugins as $type => $list) {
+            foreach ($list as $name => $plugin) {
+                if (!$plugin->is_standard()) {
+                    $installedplugins[] = $type . '_' .$name;
+                }
+            }
+        }
+
+        // Check that the plugins are installed.
+        foreach ($plugins as $key => $plugin) {
+            if (!in_array($plugin, $installedplugins)) {
+                unset($plugins[$key]);
+            }
+        }
+
         return $plugins;
     }
 
@@ -119,13 +148,15 @@ class bftranslatelib {
     public static function get_plugins_dropdown_array(): array {
         $bfplugins = static::get_plugins();
 
-        $plugins = ['' => get_string('select')];
+        $plugins = [];
         foreach ($bfplugins as $key => $bfplugin) {
             // Lang strings only retrievable from installed plugins on full plugins list.
             if (get_string_manager()->string_exists('pluginname', $bfplugin)) {
                 $plugins[$bfplugin] = get_string('pluginname', $bfplugin);
             }
         }
+        asort($plugins, SORT_STRING | SORT_FLAG_CASE);
+        $plugins = ['' => get_string('select')] + $plugins;
 
         return $plugins;
     }
