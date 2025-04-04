@@ -78,6 +78,7 @@ This plugin has been developed and is maintained by Brickfield Education Labs.
 
 ## Important Links ##
 * [Code repository](https://github.com/brickfield/moodle-local_bftranslate)
+* [Brickfield Translate userguide](https://docs.brickfield.ie/local-bftranslate/)
 * [Azure translation documentation](https://learn.microsoft.com/en-gb/azure/ai-services/translator/text-translation/reference/v3/reference)
 * [DeepL translation documentation](https://developers.deepl.com/docs/api-reference/translate)
 
