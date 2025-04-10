@@ -56,6 +56,10 @@ if ($save) {
 }
 
 $mform = new \local_bftranslate\form\translate_form();
+if ($save) {
+    echo $OUTPUT->notification(get_string('submitsuccess', 'local_bftranslate'), 'notifysuccess');
+    $mform->set_data(['plugin' => $plugin, 'targetlang' => $targetlang]);
+}
 
 // Handle the form submission.
 $formdata = $mform->get_data();
@@ -72,7 +76,6 @@ if ($formdata !== null) {
     }
 
 }
-
 
 $mform->display();
 

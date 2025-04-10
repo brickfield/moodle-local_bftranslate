@@ -115,6 +115,7 @@ class displaytable extends \flexible_table {
                 'sourcestring' => $string,
                 'targetstring' => \html_writer::tag('textarea', s($results['results'][$key]), [
                     'name' => "translations[" . $encodedkey . "]",
+                    'aria-label' => "translation text for " . $key,
                     'rows' => 2,
                     'cols' => 50,
                 ]),

@@ -274,13 +274,9 @@ class bftranslatelib {
         $batchlimit = $formdata->batchlimit;
         $config = get_config('local_bftranslate');
         $info = \core_plugin_manager::instance()->get_plugin_info($plugin);
-        $parts = explode('_', $plugin);
+        $langfilename = static::get_langfilename($plugin);
+        $path = $info->rootdir .'/lang/en/' . $langfilename;
 
-        if ($parts[0] == 'mod') {
-            $path = $info->rootdir .'/lang/en/' . $parts[1] . '.php';
-        } else {
-            $path = $info->rootdir .'/lang/en/' . $plugin . '.php';
-        }
         if (!file_exists($path)) {
             return [];
         }
@@ -330,8 +326,9 @@ class bftranslatelib {
         global $CFG;
 
         // Determine the language file location.
-        $langdir = "$CFG->dataroot/lang/$targetlang";
-        $langfile = "$langdir/$plugin.php";
+        $langfilename = static::get_langfilename($plugin);
+        $langdir = $CFG->dataroot . "/lang/" . $targetlang . "_local";
+        $langfile = "$langdir/$langfilename";
 
         // Ensure the language directory exists.
         if (!file_exists($langdir)) {
@@ -360,7 +357,7 @@ class bftranslatelib {
         }
 
         // Prepare language file content.
-        $content = "<?php\n";
+        $content = "<?php\n\n";
         $content .= "// This file is part of Moodle - http://moodle.org/\n//\n";
         $content .= "// Moodle is free software: you can redistribute it and/or modify\n";
         $content .= "// it under the terms of the GNU General Public License as published by\n";
@@ -374,6 +371,7 @@ class bftranslatelib {
         $content .= "// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.\n\n";
         $content .= "/**\n * Language strings for {$plugin}.\n";
         $content .= " *\n * @package    {$plugin}\n * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later\n */\n\n";
+        $content .= "defined('MOODLE_INTERNAL') || die();\n\n";
 
         foreach ($mergedstrings as $key => $value) {
             $content .= "\$string['" . $key . "'] = '" . addslashes($value) . "';\n";
@@ -381,5 +379,23 @@ class bftranslatelib {
 
         // Write sorted content to the language file.
         file_put_contents($langfile, $content);
+    }
+
+    /**
+     * Handles lang file name for plugins.
+     *
+     * @param string $plugin
+     * @return string $langfilename
+     */
+    public static function get_langfilename(string $plugin): string {
+        $parts = explode('_', $plugin, 2);
+
+        if ($parts[0] == 'mod') {
+            $plugin = $parts[1] . '.php';
+        } else {
+            $plugin = $plugin . '.php';
+        }
+
+        return $plugin;
     }
 }
