@@ -332,7 +332,7 @@ class bftranslatelib {
 
         // Ensure the language directory exists.
         if (!file_exists($langdir)) {
-            mkdir($langdir, 0777, true);
+            mkdir($langdir, 0666, true);
         }
 
         // Read existing strings using file parsing.
@@ -346,7 +346,8 @@ class bftranslatelib {
         }
 
         // Merge and sort translations, ensuring 'pluginname' remains first.
-        $mergedstrings = array_merge($existingstrings, $translations);
+        // $existingstrings go last in array_merge to retain any existing customisations already done.
+        $mergedstrings = array_merge($translations, $existingstrings);
         if (isset($mergedstrings['pluginname'])) {
             $pluginname = $mergedstrings['pluginname'];
             unset($mergedstrings['pluginname']);
