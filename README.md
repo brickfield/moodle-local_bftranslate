@@ -33,39 +33,7 @@ To translate a plugin in batches, if needed, but is more complicated:
 2. Save the produced translation language strings, either into the plugin lang file directly as a plugin developer, or via the customisation function in Site administration > Language > Language customisation > Open language pack for editing.
 3. Remember to purge caches for language strings, as the cache needs to find the saved strings, in order to see them as done and use the next batch of strings to process next.
 
-Currently supported languages: 
-* Arabic / العربية (ar).
-* Bulgarian / Български (bg).
-* Czech / Čeština (cs).
-* Danish / Dansk (da).
-* German / Deutsch (de).
-* Greek / Ελληνικά (el).
-* Spanish (international) / Español - Internacional (es).
-* Estonian / eesti (et).
-* Finnish / Suomi (fi).
-* French / Français (fr).
-* Irish / Gaeilge (ga).
-* Hungarian / magyar (hu).
-* Indonesian / Bahasa Indonesia (id).
-* Italian / Italiano (it).
-* Japanese / 日本語 (ja).
-* Korean / 한국어 (ko).
-* Lithuanian / Lietuvių (lt).
-* Latvian / Latviešu (lv).
-* Norwegian Bokmål / Norsk - bokmål (nb).
-* Dutch / Nederlands (nl).
-* Polish / Polski (pl).
-* Portuguese - Brazil / Português - Brasil (pt_br).
-* Portuguese / Português - Portugal (pt).
-* Romanian / Română (ro).
-* Russian / Русский (ru).
-* Slovak / Slovenčina (sk).
-* Slovenian / Slovenščina (sl).
-* Swedish / Svenska (sv).
-* Turkish / Türkçe (tr).
-* Ukrainian / Українська (uk).
-* Chinese (simplified) / 简体中文 (zh_cn).
-* Chinese (traditional/big5) / 正體中文 (zh_tw).
+For the currently supported languages, please refer to DeepL and Azure support documentation in the important links section below.
 
 ## License ##
 2025 Onward [Brickfield Education Labs](https://www.brickfield.ie)
@@ -78,12 +46,13 @@ This plugin has been developed and is maintained by Brickfield Education Labs.
 
 ## Important Links ##
 * [Code repository](https://github.com/brickfield/moodle-local_bftranslate)
+* [Brickfield Translate user guide](https://docs.brickfield.ie/local-bftranslate/)
 * [Azure translation documentation](https://learn.microsoft.com/en-gb/azure/ai-services/translator/text-translation/reference/v3/reference)
 * [DeepL translation documentation](https://developers.deepl.com/docs/api-reference/translate)
 
 ## Installation ##
-* Unzip and copy "bftranslate" folder into Moodle's "local" folder
-* Visit admin page to install module
+1. Unzip and copy "bftranslate" folder into Moodle's "local" folder
+2. Visit admin page to install module
 
 Further installation instructions can be found on the
 "[Installing plugins](http://docs.moodle.org/en/Installing_contributed_modules_or_plugins)" Moodle documentation page.
