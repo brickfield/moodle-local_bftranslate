@@ -45,7 +45,7 @@ $PAGE->set_heading(get_string('pluginname', 'local_bftranslate'));
 echo $OUTPUT->header();
 
 if ($save) {
-    $translations = optional_param_array('translations', [], PARAM_TEXT);
+    $translations = optional_param_array('translations', [], PARAM_CLEANHTML);
     $decodedtranslations = [];
 
     foreach ($translations as $key => $value) {
