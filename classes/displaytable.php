@@ -108,9 +108,18 @@ class displaytable extends \flexible_table {
 
         $testdata = [];
         foreach ($results['source'] as $key => $string) {
-            $row = ['key' => $key,
+            // Encode key in case of special chars.
+            $encodedkey = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($key));
+            $row = [
+                'key' => $key,
                 'sourcestring' => $string,
-                'targetstring' => $results['results'][$key]];
+                'targetstring' => \html_writer::tag('textarea', s($results['results'][$key]), [
+                    'name' => "translations[" . $encodedkey . "]",
+                    'aria-label' => "translation text for " . $key,
+                    'rows' => 2,
+                    'cols' => 50,
+                ]),
+            ];
             if ($results['selectoutput'] == 'langstring') {
                 $langdata = [
                     'key' => $key,
@@ -121,7 +130,22 @@ class displaytable extends \flexible_table {
             $testdata[] = $row;
         }
         $this->setup();
+        echo \html_writer::start_tag('form', ['method' => 'post', 'action' => $url]);
+        echo \html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
+        echo \html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'plugin', 'value' => $results['plugin']]);
+        echo \html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'targetlang', 'value' => $results['targetlang']]);
+
         $this->format_and_add_array_of_rows($testdata);
+
+        echo \html_writer::start_div('form-group');
+        echo \html_writer::tag('button', get_string('savechanges', 'local_bftranslate'), [
+            'type' => 'submit',
+            'name' => 'save',
+            'value' => 'submit',
+            'class' => 'btn btn-primary',
+        ]);
+        echo \html_writer::end_div();
+        echo \html_writer::end_tag('form');
         echo('<hr><hr>');
 
         $this->is_downloading(

@@ -274,13 +274,9 @@ class bftranslatelib {
         $batchlimit = $formdata->batchlimit;
         $config = get_config('local_bftranslate');
         $info = \core_plugin_manager::instance()->get_plugin_info($plugin);
-        $parts = explode('_', $plugin);
+        $langfilename = static::get_langfilename($plugin);
+        $path = $info->rootdir .'/lang/en/' . $langfilename;
 
-        if ($parts[0] == 'mod') {
-            $path = $info->rootdir .'/lang/en/' . $parts[1] . '.php';
-        } else {
-            $path = $info->rootdir .'/lang/en/' . $plugin . '.php';
-        }
         if (!file_exists($path)) {
             return [];
         }
@@ -316,5 +312,92 @@ class bftranslatelib {
         }
 
         return [$missing, $results];
+    }
+
+    /**
+     * Handles saving the translations to the language file.
+     *
+     * @param array $translations
+     * @param string $plugin
+     * @param string $targetlang
+     */
+    public static function save_translation(array $translations, string $plugin, string $targetlang) {
+        global $CFG;
+
+        // Determine the language file location.
+        $langfilename = static::get_langfilename($plugin);
+        $langdir = $CFG->dataroot . "/lang/" . $targetlang . "_local";
+        $langfile = "$langdir/$langfilename";
+
+        // Ensure the language directory exists.
+        if (!file_exists($langdir)) {
+            mkdir($langdir, 0666, true);
+        }
+
+        // Read existing strings using file parsing.
+        $existingstrings = [];
+        if (file_exists($langfile)) {
+            $content = file_get_contents($langfile);
+            preg_match_all("/\\\$string\\['(.+?)'\\]\\s*=\\s*'(.*?)';/s", $content, $matches, PREG_SET_ORDER);
+            foreach ($matches as $match) {
+                $existingstrings[$match[1]] = $match[2];
+            }
+        }
+
+        // Merge and sort translations, ensuring 'pluginname' remains first.
+        // $existingstrings go last in array_merge to retain any existing customisations already done.
+        $mergedstrings = array_merge($translations, $existingstrings);
+        if (isset($mergedstrings['pluginname'])) {
+            $pluginname = $mergedstrings['pluginname'];
+            unset($mergedstrings['pluginname']);
+            ksort($mergedstrings);
+            $mergedstrings = ['pluginname' => $pluginname] + $mergedstrings;
+        } else {
+            ksort($mergedstrings);
+        }
+
+        // Prepare language file content.
+        $content = "<?php\n\n";
+        $content .= "// This file is part of Moodle - http://moodle.org/\n//\n";
+        $content .= "// Moodle is free software: you can redistribute it and/or modify\n";
+        $content .= "// it under the terms of the GNU General Public License as published by\n";
+        $content .= "// the Free Software Foundation, either version 3 of the License, or\n";
+        $content .= "// (at your option) any later version.\n//\n";
+        $content .= "// Moodle is distributed in the hope that it will be useful,\n";
+        $content .= "// but WITHOUT ANY WARRANTY; without even the implied warranty of\n";
+        $content .= "// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n";
+        $content .= "// GNU General Public License for more details.\n//\n";
+        $content .= "// You should have received a copy of the GNU General Public License\n";
+        $content .= "// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.\n\n";
+        $content .= "/**\n * Language strings for {$plugin}.\n";
+        $content .= " *\n * @package    {$plugin}\n * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later\n */\n\n";
+        $content .= "defined('MOODLE_INTERNAL') || die();\n\n";
+
+        foreach ($mergedstrings as $key => $value) {
+            $content .= "\$string['" . $key . "'] = '" . addslashes($value) . "';\n";
+        }
+
+        $content .= "\n"; // Include newline at end.
+
+        // Write sorted content to the language file.
+        file_put_contents($langfile, $content);
+    }
+
+    /**
+     * Handles lang file name for plugins.
+     *
+     * @param string $plugin
+     * @return string $langfilename
+     */
+    public static function get_langfilename(string $plugin): string {
+        $parts = explode('_', $plugin, 2);
+
+        if ($parts[0] == 'mod') {
+            $plugin = $parts[1] . '.php';
+        } else {
+            $plugin = $plugin . '.php';
+        }
+
+        return $plugin;
     }
 }

@@ -28,6 +28,10 @@ use local_bftranslate\bftranslatelib;
 require('../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
+$plugin = optional_param('plugin', '', PARAM_TEXT);
+$targetlang = optional_param('targetlang', '', PARAM_TEXT);
+$save = optional_param('save', '', PARAM_ALPHA);
+
 require_login();
 require_capability('local/bftranslate:viewall', context_system::instance());
 
@@ -36,14 +40,26 @@ $PAGE->set_url($url);
 $PAGE->set_context(context_system::instance());
 $PAGE->set_title(get_string('pluginname', 'local_bftranslate'));
 
-$plugin = optional_param('plugin', '', PARAM_TEXT);
-$targetlang = optional_param('targetlang', '', PARAM_TEXT);
-
 $PAGE->set_heading(get_string('pluginname', 'local_bftranslate'));
 
 echo $OUTPUT->header();
 
+if ($save) {
+    $translations = optional_param_array('translations', [], PARAM_CLEANHTML);
+    $decodedtranslations = [];
+
+    foreach ($translations as $key => $value) {
+        $decodedkey = base64_decode(str_replace(['-', '_'], ['+', '/'], $key));
+        $decodedtranslations[$decodedkey] = $value;
+    }
+    $saveresults = bftranslatelib::save_translation($decodedtranslations, $plugin, $targetlang);
+}
+
 $mform = new \local_bftranslate\form\translate_form();
+if ($save) {
+    echo $OUTPUT->notification(get_string('submitsuccess', 'local_bftranslate'), 'notifysuccess');
+    $mform->set_data(['plugin' => $plugin, 'targetlang' => $targetlang]);
+}
 
 // Handle the form submission.
 $formdata = $mform->get_data();
