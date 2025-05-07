@@ -39,6 +39,13 @@ $settings->add(new admin_setting_configtext('local_bftranslate/azure_api_key',
     get_string('apikey:azure_desc', 'local_bftranslate'),
     '', PARAM_TEXT));
 
+$settings->add(new admin_setting_configcheckbox(
+    'local_bftranslate/allowcoretranslation',
+    get_string('settings:allowcoretranslation', 'local_bftranslate'),
+    get_string('settings:allowcoretranslation_desc', 'local_bftranslate'),
+    '0'
+));
+
 $settings->add(new admin_setting_configtextarea('local_bftranslate/external_plugins',
     get_string('external_plugins', 'local_bftranslate'),
     get_string('external_plugins_desc', 'local_bftranslate'),

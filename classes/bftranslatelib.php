@@ -120,12 +120,14 @@ class bftranslatelib {
         }
 
         // Retrieve an array of all installed plugins that are not part of core.
+        // If allowcoretranslation is enabled, then allow core plugins.
         $allplugins = \core_plugin_manager::instance()->get_plugins();
         $installedplugins = [];
         foreach ($allplugins as $type => $list) {
             foreach ($list as $name => $plugin) {
-                if (!$plugin->is_standard()) {
+                if ((!$plugin->is_standard()) || (!empty($config->allowcoretranslation))) {
                     $installedplugins[] = $type . '_' .$name;
+                    $plugins[] = $type . '_' .$name;
                 }
             }
         }
@@ -152,7 +154,7 @@ class bftranslatelib {
         foreach ($bfplugins as $key => $bfplugin) {
             // Lang strings only retrievable from installed plugins on full plugins list.
             if (get_string_manager()->string_exists('pluginname', $bfplugin)) {
-                $plugins[$bfplugin] = get_string('pluginname', $bfplugin);
+                $plugins[$bfplugin] = get_string('pluginname', $bfplugin) . ' (' . $bfplugin . ')';
             }
         }
         asort($plugins, SORT_STRING | SORT_FLAG_CASE);
