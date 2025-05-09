@@ -291,9 +291,10 @@ class bftranslatelib {
 
         $missing = [];
         foreach ($englishstrings as $key => $string) {
-            // Check if the string is missing or empty in the target language.
+            // Check if string needs translating: is missing, empty, or identical to English in the target language.
             if ((!isset($targetstrings[$key])
-                || empty(trim($targetstrings[$key])))) {
+                || empty(trim($targetstrings[$key])))
+                || ($targetstrings[$key] == $string)) {
                 $missing[$key] = $string;
             }
         }
