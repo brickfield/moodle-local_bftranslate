@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Plugin Translator';
+$string['pluginname'] = 'Brickfield Plugin Translator';
 $string['apikey:deepl'] = 'DeepL API Key';
 $string['apikey:deepl_desc'] = 'Enter your DeepL API key to enable translations.';
 $string['apikey:azure'] = 'Azure API Key';
@@ -35,6 +35,7 @@ $string['external_plugins_desc'] = 'Enter a comma separated list of installed ex
 $string['filename'] = 'Translator Download';
 $string['langstringformat'] = '$string[\'{$a->key}\'] = \'{$a->value}\';';
 $string['notranslationsneeded'] = 'All strings already exist in the target language.';
+$string['privacy:nullproviderreason'] = 'The Brickfield Plugin Translator does not store any personal data.';
 $string['report:heading'] = 'Translation page';
 $string['reporttitle'] = 'Translator Download Report';
 $string['savechanges'] = 'Save Changes as custom language strings';
