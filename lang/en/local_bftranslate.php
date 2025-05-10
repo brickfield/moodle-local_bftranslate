@@ -34,6 +34,7 @@ $string['external_plugins'] = 'External Plugins';
 $string['external_plugins_desc'] = 'Enter a comma separated list of installed external plugins.';
 $string['filename'] = 'Translator Download';
 $string['langstringformat'] = '$string[\'{$a->key}\'] = \'{$a->value}\';';
+$string['matchingstrings'] = 'The following strings are identical in English and the target translation language: {$a}. <br /><br />Due to the way Moodle defaults to using English strings if none exist, identical existing strings will continue to show as being missing, so please ignore these matching strings in subsequent processing.';
 $string['notranslationsneeded'] = 'All strings already exist in the target language.';
 $string['privacy:nullproviderreason'] = 'The Brickfield Plugin Translator does not store any personal data.';
 $string['report:heading'] = 'Translation page';

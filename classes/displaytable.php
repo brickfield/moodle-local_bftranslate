@@ -107,7 +107,11 @@ class displaytable extends \flexible_table {
         $this->set_attribute('class', 'generaltable generalbox');
 
         $testdata = [];
+        $matching = [];
         foreach ($results['source'] as $key => $string) {
+            if ($string == $results['results'][$key]) {
+                $matching[] = $string;
+            }
             // Encode key in case of special chars.
             $encodedkey = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($key));
             $row = [
@@ -130,6 +134,11 @@ class displaytable extends \flexible_table {
             $testdata[] = $row;
         }
         $this->setup();
+        // Detect if any matching strings have been detected.
+        if (count($matching) > 0) {
+            $matchingstr = implode(', ', $matching);
+            echo \html_writer::tag('div', get_string('matchingstrings', 'local_bftranslate', $matchingstr), ['class' => 'alert alert-warning']);
+        }
         echo \html_writer::start_tag('form', ['method' => 'post', 'action' => $url]);
         echo \html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
         echo \html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'plugin', 'value' => $results['plugin']]);
