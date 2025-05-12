@@ -35,6 +35,26 @@ class bftranslatelib {
      * @return array
      */
     public static function get_plugins(): array {
+        // Get plugins from config.
+        $config = get_config('local_bftranslate');
+        $pluginslist = array_map('trim', explode(',', $config->external_plugins));
+
+        $allplugins = \core_plugin_manager::instance()->get_plugins();
+        $installedplugins = [];
+        $plugins = [];
+
+        // If allowcoretranslation is enabled, then allow core plugins only.
+        if (!empty($config->allowcoretranslation)) {
+            foreach ($allplugins as $type => $list) {
+                foreach ($list as $name => $plugin) {
+                    if ($plugin->is_standard()) {
+                        $plugins[] = $type . '_' .$name;
+                    }
+                }
+            }
+            return $plugins;
+        }
+
         $plugins = [
             'tool_bfplus',
             'accessibilityplustool_activityresults',
@@ -108,10 +128,6 @@ class bftranslatelib {
             'tool_bfcompexport',
         ];
 
-        // Get plugins from config.
-        $config = get_config('local_bftranslate');
-        $pluginslist = array_map('trim', explode(',', $config->external_plugins));
-
         // If plugin doesn't exist in the hardcoded array, then append to array.
         foreach ($pluginslist as $extplugin) {
             if (!in_array($extplugin, $plugins)) {
@@ -120,12 +136,11 @@ class bftranslatelib {
         }
 
         // Retrieve an array of all installed plugins that are not part of core.
-        // If allowcoretranslation is enabled, then allow core plugins.
         $allplugins = \core_plugin_manager::instance()->get_plugins();
         $installedplugins = [];
         foreach ($allplugins as $type => $list) {
             foreach ($list as $name => $plugin) {
-                if ((!$plugin->is_standard()) || (!empty($config->allowcoretranslation))) {
+                if (!$plugin->is_standard()) {
                     $installedplugins[] = $type . '_' .$name;
                     $plugins[] = $type . '_' .$name;
                 }
