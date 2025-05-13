@@ -195,6 +195,7 @@ class bftranslatelib {
             'et',
             'fi',
             'fr',
+            'fr_ca',
             'ga',
             'hu',
             'id',
@@ -226,17 +227,30 @@ class bftranslatelib {
     }
 
     /**
-     * Map specfic lang codes to the correct code.
+     * Map specfic lang codes to the correct code for the specified API.
      *
+     * @param string $api
      * @return array
      */
-    public static function get_language_mappings(): array {
-        $languages = [
-            'pt' => 'pt-pt',
-            'en' => 'en-gb',
-            'zh_cn' => 'zh-hans',
-            'zh_tw' => 'zh-hant',
-        ];
+    public static function get_language_mappings($api): array {
+        $languages = [];
+
+        if ($api == 'deepl') {
+            $languages = [
+                'pt' => 'pt-pt',
+                'en' => 'en-gb',
+                'zh_cn' => 'zh-hans',
+                'zh_tw' => 'zh-hant',
+            ];
+        } else if ($api == 'azure') {
+            $languages = [
+                'pt_br' => 'pt',
+                'pt' => 'pr-PT',
+                'fr_ca' => 'fr-CA',
+                'zh_cn' => 'zh-Hans',
+                'zh_tw' => 'zh-Hant',
+            ];
+        }
 
         return $languages;
     }
@@ -250,13 +264,6 @@ class bftranslatelib {
 
         $stringmgr = get_string_manager();
         $languages = $stringmgr->get_list_of_translations();
-        // Adding specific mappings between Moodle lang codes and external API requirements.
-        $mappings = static::get_language_mappings();
-        foreach ($mappings as $key => $value) {
-            if (isset($languages[$key])) {
-                $languages[$value] = $languages[$key];
-            }
-        }
 
         return $languages;
     }
@@ -321,6 +328,11 @@ class bftranslatelib {
             return [];
         }
 
+        // Adding specific mappings between Moodle lang codes and external API requirements.
+        $mappings = static::get_language_mappings($api);
+        if (isset($mappings[$targetlang])) {
+            $targetlang = $mappings[$targetlang];
+        }
         if ($api == 'azure') {
             $work = new azure_translator($config->azure_api_key);
             $results = $work->translate_batch($missing, $targetlang);
