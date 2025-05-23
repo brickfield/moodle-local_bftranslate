@@ -400,7 +400,8 @@ class bftranslatelib {
         $content .= "// You should have received a copy of the GNU General Public License\n";
         $content .= "// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.\n\n";
         $content .= "/**\n * Language strings for {$plugin}.\n";
-        $content .= " *\n * @package    {$plugin}\n * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later\n */\n\n";
+        $content .= " *\n * @package    {$plugin}\n * @license    ";
+        $content .= "http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later\n */\n\n";
         $content .= "defined('MOODLE_INTERNAL') || die();\n\n";
 
         foreach ($mergedstrings as $key => $value) {

@@ -129,7 +129,8 @@ class displaytable extends \flexible_table {
         // Detect if any matching strings have been detected.
         if (count($matching) > 0) {
             $matchingstr = implode(', ', $matching);
-            echo \html_writer::tag('div', get_string('matchingstrings', 'local_bftranslate', $matchingstr), ['class' => 'alert alert-warning']);
+            echo \html_writer::tag('div', get_string('matchingstrings', 'local_bftranslate',
+                $matchingstr), ['class' => 'alert alert-warning']);
         }
         echo \html_writer::start_tag('form', ['method' => 'post', 'action' => $url]);
         echo \html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
