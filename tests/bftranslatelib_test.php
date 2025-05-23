@@ -52,11 +52,14 @@ class bftranslatelib_test extends \advanced_testcase {
      * @return void
      */
     public function test_get_plugins() {
+        // Need to configure this plugin for detection.
+        set_config('allowcoretranslation', 0, 'local_bftranslate');
+        set_config('external_plugins', 'local_bftranslate', 'local_bftranslate');
+
         $results = bftranslatelib::get_plugins();
 
         $this->assertIsArray($results);
-        $this->assertContains('tool_bfplus', $results);
-        $this->assertContains('local_bfaltformat', $results);
+        $this->assertContains('local_bftranslate', $results);
     }
 
     /**
@@ -69,6 +72,7 @@ class bftranslatelib_test extends \advanced_testcase {
      */
     public function test_get_plugins_dropdown_array() {
         // Need to configure this plugin for detection.
+        set_config('allowcoretranslation', 0, 'local_bftranslate');
         set_config('external_plugins', 'local_bftranslate', 'local_bftranslate');
 
         $results = bftranslatelib::get_plugins_dropdown_array();
