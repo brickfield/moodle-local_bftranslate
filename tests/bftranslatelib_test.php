@@ -83,9 +83,10 @@ class bftranslatelib_test extends \advanced_testcase {
 
         $results = bftranslatelib::get_plugins_dropdown_array();
 
+        $label = get_string('pluginname', 'local_bftranslate') . ' (local_bftranslate)';
         $this->assertIsArray($results);
         $this->assertContains('Select', $results);
-        $this->assertContains(get_string('pluginname', 'local_bftranslate'), $results);
+        $this->assertContains($label, $results);
     }
 
     /**
