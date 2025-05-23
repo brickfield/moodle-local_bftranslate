@@ -52,6 +52,9 @@ class bftranslatelib_test extends \advanced_testcase {
      * @return void
      */
     public function test_get_plugins() {
+        $this->resetAfterTest();
+        $this->preventResetByRollback();
+
         // Need to configure this plugin for detection.
         set_config('allowcoretranslation', 0, 'local_bftranslate');
         set_config('external_plugins', 'local_bftranslate', 'local_bftranslate');
@@ -71,6 +74,9 @@ class bftranslatelib_test extends \advanced_testcase {
      * @return void
      */
     public function test_get_plugins_dropdown_array() {
+        $this->resetAfterTest();
+        $this->preventResetByRollback();
+
         // Need to configure this plugin for detection.
         set_config('allowcoretranslation', 0, 'local_bftranslate');
         set_config('external_plugins', 'local_bftranslate', 'local_bftranslate');
