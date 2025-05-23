@@ -28,7 +28,7 @@ use local_bftranslate\bftranslatelib;
  * @author     Jay Churchward <jay@brickfieldlabs.ie>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class bftranslatelib_test extends \advanced_testcase {
+final class bftranslatelib_test extends \advanced_testcase {
 
     /**
      * Installs language packs.
@@ -51,7 +51,7 @@ class bftranslatelib_test extends \advanced_testcase {
      *
      * @return void
      */
-    public function test_get_plugins() {
+    public function test_get_plugins(): void {
         $this->resetAfterTest();
         $this->preventResetByRollback();
 
@@ -73,7 +73,7 @@ class bftranslatelib_test extends \advanced_testcase {
      *
      * @return void
      */
-    public function test_get_plugins_dropdown_array() {
+    public function test_get_plugins_dropdown_array(): void {
         $this->resetAfterTest();
         $this->preventResetByRollback();
 
@@ -96,7 +96,7 @@ class bftranslatelib_test extends \advanced_testcase {
      *
      * @return void
      */
-    public function test_get_languages() {
+    public function test_get_languages(): void {
         $results = bftranslatelib::get_languages();
 
         $this->assertIsArray($results);
@@ -112,7 +112,7 @@ class bftranslatelib_test extends \advanced_testcase {
      *
      * @return void
      */
-    public function test_get_language_mappings() {
+    public function test_get_language_mappings(): void {
         $results = bftranslatelib::get_language_mappings('azure');
 
         $this->assertIsArray($results);
@@ -130,7 +130,7 @@ class bftranslatelib_test extends \advanced_testcase {
      *
      * @return void
      */
-    public function test_get_installed_languages() {
+    public function test_get_installed_languages(): void {
         self::install_languages();
         $results = bftranslatelib::get_installed_languages();
 
@@ -149,7 +149,7 @@ class bftranslatelib_test extends \advanced_testcase {
      *
      * @return void
      */
-    public function test_get_languages_dropdown_array() {
+    public function test_get_languages_dropdown_array(): void {
         self::install_languages();
         $results = bftranslatelib::get_languages_dropdown_array();
 
@@ -164,7 +164,7 @@ class bftranslatelib_test extends \advanced_testcase {
      *
      * @covers \local_bftranslate\bftranslatelib::process_translation
      */
-    public function test_process_translation() {
+    public function test_process_translation(): void {
         self::install_languages();
 
         // Create sample string arrays.

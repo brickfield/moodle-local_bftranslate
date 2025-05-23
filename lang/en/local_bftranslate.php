@@ -23,11 +23,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Brickfield Plugin Translator';
-$string['apikey:deepl'] = 'DeepL API Key';
-$string['apikey:deepl_desc'] = 'Enter your DeepL API key to enable translations.';
 $string['apikey:azure'] = 'Azure API Key';
 $string['apikey:azure_desc'] = 'Enter your Azure API key to enable translations.';
+$string['apikey:deepl'] = 'DeepL API Key';
+$string['apikey:deepl_desc'] = 'Enter your DeepL API key to enable translations.';
 $string['emptyplugin'] = 'No Plugin Submitted';
 $string['emptytargetlang'] = 'No Target Language Submitted';
 $string['external_plugins'] = 'External Plugins';
@@ -36,17 +35,18 @@ $string['filename'] = 'Translator Download';
 $string['langstringformat'] = '$string[\'{$a->key}\'] = \'{$a->value}\';';
 $string['matchingstrings'] = 'The following strings are identical in English and the target translation language: {$a}. <br /><br />Due to the way Moodle defaults to using English strings if none exist, identical existing strings will continue to show as being missing, so please ignore these matching strings in subsequent processing.';
 $string['notranslationsneeded'] = 'All strings already exist in the target language.';
+$string['pluginname'] = 'Brickfield Plugin Translator';
 $string['privacy:nullproviderreason'] = 'The Brickfield Plugin Translator does not store any personal data.';
 $string['report:heading'] = 'Translation page';
 $string['reporttitle'] = 'Translator Download Report';
 $string['savechanges'] = 'Save Changes as custom language strings';
-$string['selectbatchlimit'] = 'Select Optional Batch Limit';
 $string['selectapi'] = 'Select API';
-$string['selectplugin'] = 'Select Plugin';
-$string['selectplugin_help'] = 'Includes plugins which are either core or non-core, depending on configs.<br /><br /> Non-core plugins need to be both in the permitted list and installed.';
+$string['selectbatchlimit'] = 'Select Optional Batch Limit';
 $string['selectlanguage'] = 'Select Target Language';
 $string['selectlanguage_help'] = 'Includes languages which are both in the permitted list and installed as language packs.';
 $string['selectoutput'] = 'Select Table or PHP Language String output';
+$string['selectplugin'] = 'Select Plugin';
+$string['selectplugin_help'] = 'Includes plugins which are either core or non-core, depending on configs.<br /><br /> Non-core plugins need to be both in the permitted list and installed.';
 $string['settings'] = 'Settings';
 $string['settings:allowcoretranslation'] = 'Allow core translation';
 $string['settings:allowcoretranslation_desc'] = 'Allow core plugins to be translated.';

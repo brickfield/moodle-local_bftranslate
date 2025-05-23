@@ -107,8 +107,6 @@ class deepl_translator {
         curl_setopt($ch, CURLOPT_POSTFIELDS, $string);
         $authstring = 'Authorization: DeepL-Auth-Key ' . $this->apikey;
         curl_setopt($ch, CURLOPT_HTTPHEADER, [$authstring, 'Content-Type: application/json']);
-        // curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postdata));
-        // curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
 
         $response = curl_exec($ch);
         curl_close($ch);
