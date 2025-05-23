@@ -58,12 +58,9 @@ class displaytable extends \flexible_table {
         parent::__construct($uniqueid);
 
         $languages = bftranslatelib::get_installed_languages();
-        // Array flip to map external lang codes back to Moodle lang codes for display.
-        $mappings = array_flip(bftranslatelib::get_language_mappings());
-
         $this->tdir = optional_param($this->request[TABLE_VAR_DIR], '', PARAM_INT);
         $this->tsort = optional_param($this->request[TABLE_VAR_SORT], '', PARAM_ALPHANUMEXT);
-        $langdesc = $languages[$results['targetlang']] ?? $languages[$mappings[$results['targetlang']]];
+        $langdesc = $languages[$results['targetlang']];
         $captionparams = ['plugin' => get_string('pluginname', $results['plugin']),
             'targetlang' => $langdesc];
         $caption = get_string('tablecaption', 'local_bftranslate', $captionparams);
@@ -72,11 +69,6 @@ class displaytable extends \flexible_table {
         if (get_config('local_bftranslate', 'pagesize') > 0) {
             $this->use_pages = true;
         }
-
-        // if ($this->use_pages) {
-            // Setting pagesize for pagination.
-            // $this->pagesize(get_config('local_bftranslate', 'pagesize'), count($this->users));
-        // }
 
         // Setting up the tables columns.
         $columns = [
