@@ -68,11 +68,14 @@ class bftranslatelib_test extends \advanced_testcase {
      * @return void
      */
     public function test_get_plugins_dropdown_array() {
+        // Need to configure this plugin for detection.
+        set_config('external_plugins', 'local_bftranslate', 'local_bftranslate');
+
         $results = bftranslatelib::get_plugins_dropdown_array();
 
         $this->assertIsArray($results);
         $this->assertContains('Select', $results);
-        $this->assertContains(get_string('pluginname', 'tool_bfplus'), $results);
+        $this->assertContains(get_string('pluginname', 'local_bftranslate'), $results);
     }
 
     /**
@@ -99,13 +102,13 @@ class bftranslatelib_test extends \advanced_testcase {
      * @return void
      */
     public function test_get_language_mappings() {
-        $results = bftranslatelib::get_language_mappings();
+        $results = bftranslatelib::get_language_mappings('azure');
 
         $this->assertIsArray($results);
         $this->assertArrayHasKey('pt', $results);
-        $this->assertContains('pt-pt', $results);
-        $this->assertArrayHasKey('en', $results);
-        $this->assertContains('en-gb', $results);
+        $this->assertContains('pr-PT', $results);
+        $this->assertArrayHasKey('fr_ca', $results);
+        $this->assertContains('fr-CA', $results);
     }
 
     /**
@@ -122,7 +125,6 @@ class bftranslatelib_test extends \advanced_testcase {
 
         $this->assertIsArray($results);
         $this->assertArrayHasKey('en', $results);
-        $this->assertArrayHasKey('en-gb', $results);
         $this->assertArrayHasKey('fr', $results);
         $this->assertArrayHasKey('ga', $results);
     }
