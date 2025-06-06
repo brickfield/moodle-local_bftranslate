@@ -1,5 +1,10 @@
 #local_bftranslate_branding {
     margin-top: 9rem;
+    text-align: center;
+}
+
+#local_bftranslate_brandingwrapper {
+    display: inline-block;
 }
 
 #local_bftranslate_brickfield_head {
@@ -26,6 +31,7 @@
     justify-content: center;
     align-items: center;
     gap: 10px;
+    padding: 0;
 }
 
 #local_bftranslate_bflinks li a {
