@@ -370,6 +370,8 @@ class bftranslatelib {
             $content = file_get_contents($langfile);
             preg_match_all("/\\\$string\\['(.+?)'\\]\\s*=\\s*'(.*?)';/s", $content, $matches, PREG_SET_ORDER);
             foreach ($matches as $match) {
+                // Do some processing on existing string here, to match translations on single quotes status.
+                $match[2] = str_replace(['\\\''], ['\''], $match[2]);
                 $existingstrings[$match[1]] = $match[2];
             }
         }
@@ -406,7 +408,7 @@ class bftranslatelib {
 
         foreach ($mergedstrings as $key => $value) {
             // Do some processing on $value here, to maintain placeholders and ONLY escape single quotes.
-            $value = str_replace(['\'','a-&gt;'], ['\\\'','a->'], $value);
+            $value = str_replace(['\'', 'a-&gt;'], ['\\\'', 'a->'], $value);
             $content .= "\$string['" . $key . "'] = '" . $value . "';\n";
         }
 
