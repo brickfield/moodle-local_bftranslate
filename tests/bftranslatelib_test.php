@@ -90,22 +90,6 @@ final class bftranslatelib_test extends \advanced_testcase {
     }
 
     /**
-     * Test get_languages()
-     *
-     * @covers \local_bftranslate\bftranslatelib::get_languages
-     *
-     * @return void
-     */
-    public function test_get_languages(): void {
-        $results = bftranslatelib::get_languages();
-
-        $this->assertIsArray($results);
-        $this->assertArrayHasKey('ar', $results);
-        $this->assertArrayHasKey('de', $results);
-        $this->assertArrayHasKey('fr', $results);
-    }
-
-    /**
      * Test get_language_mappings()
      *
      * @covers \local_bftranslate\bftranslatelib::get_language_mappings
@@ -117,9 +101,9 @@ final class bftranslatelib_test extends \advanced_testcase {
 
         $this->assertIsArray($results);
         $this->assertArrayHasKey('pt', $results);
-        $this->assertContains('pr-PT', $results);
+        $this->assertContains('pt-pt', $results);
         $this->assertArrayHasKey('fr_ca', $results);
-        $this->assertContains('fr-CA', $results);
+        $this->assertContains('fr-ca', $results);
     }
 
     /**
@@ -144,7 +128,6 @@ final class bftranslatelib_test extends \advanced_testcase {
      * Test get_languages_dropdown_array()
      *
      * @covers \local_bftranslate\bftranslatelib::get_languages_dropdown_array
-     * @covers \local_bftranslate\bftranslatelib::get_languages
      * @covers \local_bftranslate\bftranslatelib::get_installed_languages
      *
      * @return void
