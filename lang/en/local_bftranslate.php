@@ -32,6 +32,7 @@ $string['branding:assessment'] = 'Assessment Bundle';
 $string['branding:audit'] = 'Accessibility Audit';
 $string['branding:bflogo'] = 'Brickfield Education Labs';
 $string['branding:contact'] = 'Contact Brickfield';
+$string['branding:like'] = 'You might also like';
 $string['branding:skills'] = 'Skills Bundle';
 $string['branding:toolkit'] = 'Accessibility Toolkit';
 $string['branding:ux'] = 'User Experience Bundle';
