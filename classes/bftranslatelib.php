@@ -361,7 +361,7 @@ class bftranslatelib {
 
         // Ensure the language directory exists.
         if (!file_exists($langdir)) {
-            mkdir($langdir, 0666, true);
+            mkdir($langdir, 0777);
         }
 
         // Read existing strings using file parsing.
@@ -370,6 +370,8 @@ class bftranslatelib {
             $content = file_get_contents($langfile);
             preg_match_all("/\\\$string\\['(.+?)'\\]\\s*=\\s*'(.*?)';/s", $content, $matches, PREG_SET_ORDER);
             foreach ($matches as $match) {
+                // Do some processing on existing string here, to match translations on single quotes status.
+                $match[2] = str_replace(['\\\''], ['\''], $match[2]);
                 $existingstrings[$match[1]] = $match[2];
             }
         }
@@ -405,7 +407,9 @@ class bftranslatelib {
         $content .= "defined('MOODLE_INTERNAL') || die();\n\n";
 
         foreach ($mergedstrings as $key => $value) {
-            $content .= "\$string['" . $key . "'] = '" . addslashes($value) . "';\n";
+            // Do some processing on $value here, to maintain placeholders and ONLY escape single quotes.
+            $value = str_replace(['\'', 'a-&gt;'], ['\\\'', 'a->'], $value);
+            $content .= "\$string['" . $key . "'] = '" . $value . "';\n";
         }
 
         $content .= "\n"; // Include newline at end.
