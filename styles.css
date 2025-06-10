@@ -1,0 +1,55 @@
+#local_bftranslate_branding {
+    margin-top: 9rem;
+    text-align: center;
+}
+
+#local_bftranslate_brandingwrapper {
+    display: inline-block;
+}
+
+#local_bftranslate_brickfield_head {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 10px;
+}
+
+#local_bftranslate_brickfield_head img.icon {
+    width: 270px;
+    height: 62px;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+}
+
+#local_bftranslate_bflinks {
+    list-style: none;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+}
+
+#local_bftranslate_bflinks li a {
+    display: inline-block;
+}
+
+#local_bftranslate_bflinks li img.icon {
+    width: 228px;
+    height: 190px;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+}
+
+#local_bftranslate_contact {
+    text-align: center;
+}
+
+#local_bftranslate_contact a {
+    font-size: 1.5rem;
+}

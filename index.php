@@ -78,5 +78,5 @@ if ($formdata !== null) {
 }
 
 $mform->display();
-
+echo $OUTPUT->render_from_template('local_bftranslate/branding', []);
 echo $OUTPUT->footer();
