@@ -115,6 +115,8 @@ class deepl_translator {
             $decoded = json_decode($response, true);
             if (isset($decoded['translations'][0]['text'])) {
                 $decoded['translations'][0]['text'] = static::remove_notranslate_tags($decoded['translations'][0]['text']);
+            } else {
+                return 'bftranslateerror:' . $decoded['message'];
             }
             return $decoded['translations'][0]['text'] ?? null;
         }

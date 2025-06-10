@@ -37,9 +37,23 @@ class translate_form extends \moodleform {
         // Get list of available target languages.
         $targetlanguages = \local_bftranslate\bftranslatelib::get_languages_dropdown_array();
 
-        $mform->addElement('select', 'selectapi',
-            get_string('selectapi', 'local_bftranslate'), ['deepl' => 'DeepL', 'azure' => 'Azure']);
-        $mform->setType('selectapi', PARAM_ALPHANUMEXT);
+        // Sanity check which APIs to display.
+        $config = get_config('local_bftranslate');
+        $apis = [];
+        if (!empty($config->azure_api_key)) {
+            $apis['azure'] = 'Azure';
+        }
+        if (!empty($config->deepl_api_key)) {
+            $apis['deepl'] = 'DeepL';
+        }
+        if (count($apis) > 0) {
+            $mform->addElement('select', 'selectapi',
+                get_string('selectapi', 'local_bftranslate'), $apis);
+            $mform->setType('selectapi', PARAM_ALPHANUMEXT);
+        } else {
+            $mform->addElement('static', 'selectapi', get_string('selectapi', 'local_bftranslate'),
+                get_string('selectnoapis', 'local_bftranslate'));
+        }
 
         $mform->addElement('select', 'plugin', get_string('selectplugin', 'local_bftranslate'), $plugins);
         $mform->setType('plugin', PARAM_ALPHANUMEXT);
@@ -70,6 +84,10 @@ class translate_form extends \moodleform {
      */
     public function validation($data, $files) {
         $errors = [];
+
+        if (!isset($data['selectapi'])) {
+            $errors['selectapi'] = get_string('selectnoapis', 'local_bftranslate');
+        }
 
         if ($data['plugin'] === '') {
             $errors['plugin'] = get_string('emptyplugin', 'local_bftranslate');
