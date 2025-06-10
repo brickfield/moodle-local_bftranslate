@@ -129,6 +129,8 @@ class azure_translator {
             $decoded = json_decode($response, true);
             if (isset($decoded[0]['translations'][0]['text'])) {
                 $decoded[0]['translations'][0]['text'] = static::remove_notranslate_tags($decoded[0]['translations'][0]['text']);
+            } else {
+                return 'bftranslateerror:' . $decoded['error']['code'];
             }
             return $decoded[0]['translations'][0]['text'] ?? null;
         }

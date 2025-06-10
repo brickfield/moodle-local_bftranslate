@@ -302,7 +302,13 @@ class bftranslatelib {
         $path = $info->rootdir .'/lang/en/' . $langfilename;
 
         if (!file_exists($path)) {
-            return [];
+            return ['error' => get_string('nofilefound', 'local_bftranslate')];
+        }
+
+        // Check API / targetlang is supported on API.
+        $supported = static::lang_supported($api, $targetlang);
+        if (!$supported) {
+            return ['error' => get_string('langnotsupported', 'local_bftranslate', $targetlang)];
         }
 
         // Load all strings from the English language pack.
@@ -434,5 +440,42 @@ class bftranslatelib {
         }
 
         return $plugin;
+    }
+
+    /**
+     * Handles checking lang support for apis.
+     *
+     * @param string $api
+     * @param string $targetlang
+     * @return bool
+     */
+    public static function lang_supported(string $api, string $targetlang): bool {
+        // Check targetlang is supported on API.
+
+        $config = get_config('local_bftranslate');
+        $test = ['test' => 'test'];
+        $supported = false;
+        // Adding specific mappings between Moodle lang codes and external API requirements.
+        $mappings = static::get_language_mappings($api);
+        if (isset($mappings[$targetlang])) {
+            $targetlang = $mappings[$targetlang];
+        }
+        if ($api == 'azure') {
+            $work = new azure_translator($config->azure_api_key);
+            $results = $work->translate_batch($test, $targetlang);
+            $errorfound = stripos($results['test'], '400036');
+            if ($errorfound === false) {
+                return true;
+            }
+        } else {
+            $work = new deepl_translator($config->deepl_api_key);
+            $results = $work->translate_batch($test, $targetlang);
+            $errorfound = stripos($results['test'], 'Value for \'target_lang\' not supported.');
+            if ($errorfound === false) {
+                return true;
+            }
+        }
+
+        return $supported;
     }
 }

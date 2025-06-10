@@ -67,6 +67,8 @@ if ($formdata !== null) {
     $results = bftranslatelib::process_translation($formdata);
     if (empty($results)) {
         echo $OUTPUT->notification(get_string('notranslationsneeded', 'local_bftranslate'), 'notifysuccess');
+    } else if (isset($results['error'])) {
+        echo $OUTPUT->notification($results['error'], 'notifywarning');
     } else {
         $uniqueid = 'local_bftranslate_displaytable';
         new \local_bftranslate\displaytable($uniqueid, [],
