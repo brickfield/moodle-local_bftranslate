@@ -44,6 +44,7 @@ $string['selectapi'] = 'Select API';
 $string['selectbatchlimit'] = 'Select Optional Batch Limit';
 $string['selectlanguage'] = 'Select Target Language';
 $string['selectlanguage_help'] = 'Includes languages which are both in the permitted list and installed as language packs.';
+$string['selectnoapis'] = 'No APIs are currently configured. Please check with your Site Administrator.';
 $string['selectoutput'] = 'Select Table or PHP Language String output';
 $string['selectplugin'] = 'Select Plugin';
 $string['selectplugin_help'] = 'Includes plugins which are either core or non-core, depending on configs.<br /><br /> Non-core plugins need to be both in the permitted list and installed.';
