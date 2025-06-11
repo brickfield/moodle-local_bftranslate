@@ -176,74 +176,35 @@ class bftranslatelib {
     }
 
     /**
-     * Return an array of language codes.
-     *
-     * @return array
-     */
-    public static function get_languages(): array {
-        $languages = [
-            'ar',
-            'bg',
-            'cs',
-            'da',
-            'de',
-            'el',
-            'es',
-            'et',
-            'fi',
-            'fr',
-            'fr_ca',
-            'ga',
-            'hu',
-            'id',
-            'it',
-            'ja',
-            'ko',
-            'lt',
-            'lv',
-            'nb',
-            'nl',
-            'pl',
-            'pt-br',
-            'pt-pt',
-            'ro',
-            'ru',
-            'sk',
-            'sl',
-            'sv',
-            'tr',
-            'uk',
-            'zh-hans',
-            'zh-hant',
-        ];
-
-        // Reverse to have lang codes as keys.
-        $languages = array_flip($languages);
-
-        return $languages;
-    }
-
-    /**
      * Map specfic lang codes to the correct code for the specified API.
      *
      * @param string $api
      * @return array
      */
     public static function get_language_mappings($api): array {
+        // Maps the Moodle lang codes to the API equivalents.
         $languages = [];
 
         if ($api == 'deepl') {
             $languages = [
-                'pt' => 'pt-pt',
                 'en' => 'en-gb',
+                'pt' => 'pt-pt',
+                'pt_br' => 'pt-br',
                 'zh_cn' => 'zh-hans',
                 'zh_tw' => 'zh-hant',
             ];
         } else if ($api == 'azure') {
             $languages = [
+                'ckb' => 'ku',
+                'fr_ca' => 'fr-ca',
+                'lg' => 'lug',
+                'mn' => 'mn-Cyrl',
+                'mn_mong' => 'mn-Mong',
+                'no' => 'nb',
+                'pt' => 'pt-pt',
                 'pt_br' => 'pt',
-                'pt' => 'pr-PT',
-                'fr_ca' => 'fr-CA',
+                'sr_cr' => 'sr-Cyrl',
+                'sr_lt' => 'sr-Latn',
                 'zh_cn' => 'zh-Hans',
                 'zh_tw' => 'zh-Hant',
             ];
@@ -271,11 +232,8 @@ class bftranslatelib {
      * @return array
      */
     public static function get_languages_dropdown_array(): array {
-        $targetlanguages = static::get_languages();
 
-        $stringmgr = get_string_manager();
         $languages = static::get_installed_languages();
-        $languages = array_intersect_key($languages, $targetlanguages);
         $languages = array_merge(['' => get_string('select')], $languages);
 
         return $languages;
