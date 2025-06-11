@@ -90,27 +90,27 @@ final class bftranslatelib_test extends \advanced_testcase {
     }
 
     /**
-     * Test get_language_mappings()
+     * Test get_language_mapped()
      *
-     * @covers \local_bftranslate\bftranslatelib::get_language_mappings
+     * @covers \local_bftranslate\bftranslatelib::get_language_mapped
      *
      * @return void
      */
-    public function test_get_language_mappings(): void {
-        $results = bftranslatelib::get_language_mappings('azure');
+    public function test_get_language_mapped(): void {
+        $result = bftranslatelib::get_language_mapped('azure', 'pt');
+        $this->assertEquals($result, 'pt-pt');
 
-        $this->assertIsArray($results);
-        $this->assertArrayHasKey('pt', $results);
-        $this->assertContains('pt-pt', $results);
-        $this->assertArrayHasKey('fr_ca', $results);
-        $this->assertContains('fr-ca', $results);
+        $result = bftranslatelib::get_language_mapped('azure', 'fr_ca');
+        $this->assertEquals($result, 'fr-ca');
+
+        $result = bftranslatelib::get_language_mapped('azure', 'ca_wp');
+        $this->assertEquals($result, 'ca');
     }
 
     /**
      * Test get_installed_languages()
      *
      * @covers \local_bftranslate\bftranslatelib::get_installed_languages
-     * @covers \local_bftranslate\bftranslatelib::get_language_mappings
      *
      * @return void
      */

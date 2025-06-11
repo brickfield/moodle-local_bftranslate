@@ -176,14 +176,20 @@ class bftranslatelib {
     }
 
     /**
-     * Map specfic lang codes to the correct code for the specified API.
+     * Map specfic lang code to the correct code for the specified API.
      *
      * @param string $api
-     * @return array
+     * @param string $targetlang
+     * @return string
      */
-    public static function get_language_mappings($api): array {
+    public static function get_language_mapped(string $api, string $targetlang): string {
         // Maps the Moodle lang codes to the API equivalents.
-        $languages = [];
+
+        // Deal with Workplace lang first, if submitted.
+        $wpfound = stripos($targetlang, '_wp');
+        if ($wpfound !== false) {
+            $targetlang = substr($targetlang, 0, -3);
+        }
 
         if ($api == 'deepl') {
             $languages = [
@@ -210,7 +216,10 @@ class bftranslatelib {
             ];
         }
 
-        return $languages;
+        if (isset($languages[$targetlang])) {
+            $targetlang = $languages[$targetlang];
+        }
+        return $targetlang;
     }
 
     /**
@@ -289,11 +298,7 @@ class bftranslatelib {
             return [];
         }
 
-        // Adding specific mappings between Moodle lang codes and external API requirements.
-        $mappings = static::get_language_mappings($api);
-        if (isset($mappings[$targetlang])) {
-            $targetlang = $mappings[$targetlang];
-        }
+        $targetlang = static::get_language_mapped($api, $targetlang);
         if ($api == 'azure') {
             $work = new azure_translator($config->azure_api_key);
             $results = $work->translate_batch($missing, $targetlang);
@@ -350,7 +355,7 @@ class bftranslatelib {
         }
 
         // Prepare language file content.
-        $content = "<?php\n\n";
+        $content = "<?php\n";
         $content .= "// This file is part of Moodle - http://moodle.org/\n//\n";
         $content .= "// Moodle is free software: you can redistribute it and/or modify\n";
         $content .= "// it under the terms of the GNU General Public License as published by\n";
@@ -410,11 +415,8 @@ class bftranslatelib {
         $config = get_config('local_bftranslate');
         $test = ['test' => 'test'];
         $supported = false;
-        // Adding specific mappings between Moodle lang codes and external API requirements.
-        $mappings = static::get_language_mappings($api);
-        if (isset($mappings[$targetlang])) {
-            $targetlang = $mappings[$targetlang];
-        }
+
+        $targetlang = static::get_language_mapped($api, $targetlang);
         if ($api == 'azure') {
             $work = new azure_translator($config->azure_api_key);
             $results = $work->translate_batch($test, $targetlang);
