@@ -135,14 +135,11 @@ class bftranslatelib {
             }
         }
 
-        // Retrieve an array of all installed plugins that are not part of core.
-        $allplugins = \core_plugin_manager::instance()->get_plugins();
-        $installedplugins = [];
+        // Compile a comparison array of all installed plugins that are not part of core.
         foreach ($allplugins as $type => $list) {
             foreach ($list as $name => $plugin) {
                 if (!$plugin->is_standard()) {
                     $installedplugins[] = $type . '_' .$name;
-                    $plugins[] = $type . '_' .$name;
                 }
             }
         }
