@@ -18,6 +18,7 @@ namespace local_bftranslate;
 
 use local_bftranslate\deepl_translator;
 use local_bftranslate\azure_translator;
+use local_bftranslate\demo_translator;
 
 /**
  * Library class containing main functions.
@@ -251,15 +252,23 @@ class bftranslatelib {
     /**
      * Process the translation request.
      *
-     * @param object $formdata
+     * @param \local_bftranslate\displaytablestate $state The state object to use.
      * @return array
      */
-    public static function process_translation(object $formdata): array {
+    public static function process_translation_from_state(\local_bftranslate\displaytablestate $state): array {
+        return static::process_translation($state->current_plugin(), $state->targetlang, $state->selectapi, $state->batchlimit);
+    }
 
-        $plugin = $formdata->plugin;
-        $targetlang = $formdata->targetlang;
-        $api = $formdata->selectapi;
-        $batchlimit = $formdata->batchlimit;
+    /**
+     * Process the translation request.
+     *
+     * @param string $plugin The plugin to translate.
+     * @param string $targetlang The language to translate to.
+     * @param string $api The API to use.
+     * @param int $batchlimit The batch limit to use (0 = unlimited).
+     * @return array
+     */
+    public static function process_translation(string $plugin, string $targetlang, string $api, int $batchlimit): array {
         $config = get_config('local_bftranslate');
         $info = \core_plugin_manager::instance()->get_plugin_info($plugin);
         $langfilename = static::get_langfilename($plugin);
@@ -301,6 +310,9 @@ class bftranslatelib {
         $targetlang = static::get_language_mapped($api, $targetlang);
         if ($api == 'azure') {
             $work = new azure_translator($config->azure_api_key);
+            $results = $work->translate_batch($missing, $targetlang);
+        } else if ($api == 'demo') {
+            $work = new demo_translator();
             $results = $work->translate_batch($missing, $targetlang);
         } else {
             $work = new deepl_translator($config->deepl_api_key);
@@ -424,6 +436,8 @@ class bftranslatelib {
             if ($errorfound === false) {
                 return true;
             }
+        } else if ($api == 'demo') {
+            return true;
         } else {
             $work = new deepl_translator($config->deepl_api_key);
             $results = $work->translate_batch($test, $targetlang);

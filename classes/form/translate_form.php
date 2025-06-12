@@ -16,6 +16,10 @@
 
 namespace local_bftranslate\form;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__.'/../../../../lib/formslib.php');
+
 /**
  * Class translate_form
  *
@@ -46,6 +50,7 @@ class translate_form extends \moodleform {
         if (!empty($config->deepl_api_key)) {
             $apis['deepl'] = 'DeepL';
         }
+        $apis['demo'] = 'Demo';
         if (count($apis) > 0) {
             $mform->addElement('select', 'selectapi',
                 get_string('selectapi', 'local_bftranslate'), $apis);
@@ -55,9 +60,10 @@ class translate_form extends \moodleform {
                 get_string('selectnoapis', 'local_bftranslate'));
         }
 
-        $mform->addElement('select', 'plugin', get_string('selectplugin', 'local_bftranslate'), $plugins);
-        $mform->setType('plugin', PARAM_ALPHANUMEXT);
-        $mform->addHelpButton('plugin', 'selectplugin', 'local_bftranslate');
+        $select = $mform->addElement('select', 'plugins', get_string('selectplugin', 'local_bftranslate'), $plugins);
+        $select->setMultiple(true);
+        $mform->setType('plugins', PARAM_ALPHANUMEXT);
+        $mform->addHelpButton('plugins', 'selectplugin', 'local_bftranslate');
 
         $mform->addElement('select', 'targetlang',
             get_string('selectlanguage', 'local_bftranslate'), $targetlanguages);
@@ -89,8 +95,8 @@ class translate_form extends \moodleform {
             $errors['selectapi'] = get_string('selectnoapis', 'local_bftranslate');
         }
 
-        if ($data['plugin'] === '') {
-            $errors['plugin'] = get_string('emptyplugin', 'local_bftranslate');
+        if ($data['plugins'] === '') {
+            $errors['plugins'] = get_string('emptyplugin', 'local_bftranslate');
         }
 
         if ($data['targetlang'] === '') {
