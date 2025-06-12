@@ -366,6 +366,20 @@ class bftranslatelib {
             ksort($mergedstrings);
         }
 
+        $content = static::generate_strings_file($mergedstrings, $plugin);
+
+        // Write sorted content to the language file.
+        file_put_contents($langfile, $content);
+    }
+
+    /**
+     * Generate a PHP strings file given an array of strings and a plugin name.
+     *
+     * @param array $strings The strings to include, in the form [key] => string
+     * @param string $plugin The plugin component name (ex local_bftranslate).
+     * @return string The PHP code for a strings file.
+     */
+    public static function generate_strings_file(array $strings, string $plugin): string {
         // Prepare language file content.
         $content = "<?php\n";
         $content .= "// This file is part of Moodle - http://moodle.org/\n//\n";
@@ -384,16 +398,14 @@ class bftranslatelib {
         $content .= "http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later\n */\n\n";
         $content .= "defined('MOODLE_INTERNAL') || die();\n\n";
 
-        foreach ($mergedstrings as $key => $value) {
+        foreach ($strings as $key => $value) {
             // Do some processing on $value here, to maintain placeholders and ONLY escape single quotes.
             $value = str_replace(['\'', 'a-&gt;'], ['\\\'', 'a->'], $value);
             $content .= "\$string['" . $key . "'] = '" . $value . "';\n";
         }
 
         $content .= "\n"; // Include newline at end.
-
-        // Write sorted content to the language file.
-        file_put_contents($langfile, $content);
+        return $content;
     }
 
     /**

@@ -71,15 +71,8 @@ if (!empty($doaction) && !empty($state)) {
             break;
 
         case 'switchview-langstring':
-            $langstrings = "<?php\n";
-            foreach ($state->results as $key => $string) {
-                $langdata = [
-                    'key' => $key,
-                    'value' => str_replace('\'', '\\\'', $state->results[$key]),
-                ];
-                $langstrings .= get_string('langstringformat', 'local_bftranslate', $langdata)."\n";
-            }
-            send_file($langstrings, 'strings.php', null, 0, true, true);
+            $content = bftranslatelib::generate_strings_file($state->results, $state->current_plugin());
+            send_file($content, $state->current_plugin().'.php', null, 0, true, true);
             new displaytable($state, $url);
             break;
 
