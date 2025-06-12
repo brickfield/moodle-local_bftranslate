@@ -70,9 +70,6 @@ class displaytable extends \flexible_table {
             'sourcestring',
             'targetstring',
         ];
-        if ($this->state->selectoutput == 'langstring') {
-            $columns = ['langstringformat'];
-        }
 
         $this->define_columns($columns);
         $this->no_sorting('all');
@@ -83,9 +80,6 @@ class displaytable extends \flexible_table {
             get_string('tableheader:sourcestring', 'local_bftranslate'),
             get_string('tableheader:targetstring', 'local_bftranslate'),
         ];
-        if ($this->state->selectoutput == 'langstring') {
-            $headers = [get_string('tableheader:langstring', 'local_bftranslate')];
-        }
 
         $this->define_headers($headers);
 
@@ -102,18 +96,18 @@ class displaytable extends \flexible_table {
                 $matching[] = $string;
             }
 
+            // Encode key in case of special chars.
+            $encodedkey = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($key));
             $row = [
                 'key' => $key,
                 'sourcestring' => $string,
-                'targetstring' => s($this->state->results[$key]),
+                'targetstring' => \html_writer::tag('textarea', s($this->state->results[$key]), [
+                    'name' => "translations[" . $encodedkey . "]",
+                    'aria-label' => "translation text for " . $key,
+                    'rows' => 2,
+                    'cols' => 50,
+                ]),
             ];
-            if ($this->state->selectoutput == 'langstring') {
-                $langdata = [
-                    'key' => $key,
-                    'value' => str_replace('\'', '\\\'', $this->state->results[$key]),
-                ];
-                $row = ['langstringformat' => s(get_string('langstringformat', 'local_bftranslate', $langdata))];
-            }
             $testdata[] = $row;
         }
         $this->setup();
@@ -131,30 +125,19 @@ class displaytable extends \flexible_table {
         // Submit buttons.
         echo \html_writer::start_div('form-group');
         echo \html_writer::start_div('form-group', ['style' => 'margin-top:10px;display:flex;flex-flow:row wrap;gap:10px']);
-        echo \html_writer::tag('button', get_string('savechanges', 'local_bftranslate'), [
-            'type' => 'submit',
-            'name' => 'doaction',
-            'value' => 'save',
-            'class' => 'btn btn-primary',
-        ]);
-        switch ($this->state->selectoutput) {
-            case 'langstring':
-                echo \html_writer::tag('button', get_string('switchview-table', 'local_bftranslate'), [
-                    'type' => 'submit',
-                    'name' => 'doaction',
-                    'value' => 'switchview-table',
-                    'class' => 'btn btn-primary',
-                ]);
-                break;
-
-            case 'table':
-                echo \html_writer::tag('button', get_string('switchview-langstring', 'local_bftranslate'), [
-                    'type' => 'submit',
-                    'name' => 'doaction',
-                    'value' => 'switchview-langstring',
-                    'class' => 'btn btn-primary',
-                ]);
-                break;
+        if (!empty($this->state->results)) {
+            echo \html_writer::tag('button', get_string('savechanges', 'local_bftranslate'), [
+                'type' => 'submit',
+                'name' => 'doaction',
+                'value' => 'save',
+                'class' => 'btn btn-primary',
+            ]);
+            echo \html_writer::tag('button', get_string('switchview-langstring', 'local_bftranslate'), [
+                'type' => 'submit',
+                'name' => 'doaction',
+                'value' => 'switchview-langstring',
+                'class' => 'btn btn-primary',
+            ]);
         }
         echo \html_writer::span('', '', ['style' => 'flex-grow: 1']);
         if (!empty($this->state->next_plugin())) {

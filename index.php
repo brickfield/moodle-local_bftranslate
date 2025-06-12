@@ -46,34 +46,45 @@ $PAGE->set_heading(get_string('pluginname', 'local_bftranslate'));
 $mform = new \local_bftranslate\form\translate_form();
 $formdata = $mform->get_data();
 
-echo $OUTPUT->header();
+
 
 // Decode state if available.
 $state = null;
 if (!empty($stateencoded)) {
     $state = displaytablestate::instance_from_encoded($stateencoded);
+    $translations = optional_param_array('translations', [], PARAM_CLEANHTML);
+    $decodedtranslations = [];
+    foreach ($translations as $key => $value) {
+        $decodedkey = base64_decode(str_replace(['-', '_'], ['+', '/'], $key));
+        $state->results[$decodedkey] = $value;
+    }
 }
 
 if (!empty($doaction) && !empty($state)) {
     // Translations already completed, do an action with the results.
     switch ($doaction) {
         case 'save':
+            echo $OUTPUT->header();
             $saveresults = bftranslatelib::save_translation($state->results, $state->current_plugin(), $state->targetlang);
             echo $OUTPUT->notification(get_string('submitsuccess', 'local_bftranslate'), 'notifysuccess');
             new displaytable($state, $url);
             break;
 
-        case 'switchview-table':
-            $state->selectoutput = 'table';
-            new displaytable($state, $url);
-            break;
-
         case 'switchview-langstring':
-            $state->selectoutput = 'langstring';
+            $langstrings = "<?php\n";
+            foreach ($state->results as $key => $string) {
+                $langdata = [
+                    'key' => $key,
+                    'value' => str_replace('\'', '\\\'', $state->results[$key]),
+                ];
+                $langstrings .= get_string('langstringformat', 'local_bftranslate', $langdata)."\n";
+            }
+            send_file($langstrings, 'strings.php', null, 0, true, true);
             new displaytable($state, $url);
             break;
 
         case 'nextplugin':
+            echo $OUTPUT->header();
             $state->currentpluginindex += 1;
             $results = bftranslatelib::process_translation($state->current_plugin(), $state->targetlang,
                                                             $state->selectapi, $state->batchlimit);
@@ -81,29 +92,32 @@ if (!empty($doaction) && !empty($state)) {
                 echo $OUTPUT->notification(get_string('notranslationsneeded', 'local_bftranslate'), 'notifysuccess');
             } else if (isset($results['error'])) {
                 echo $OUTPUT->notification($results['error'], 'notifywarning');
-            } else {
-                $state->source = $results[0];
-                $state->results = $results[1];
-                new displaytable($state, $url);
             }
+
+            $state->source = (isset($results[0])) ? $results[0] : [];
+            $state->results = (isset($results[1])) ? $results[1] : [];
+            new displaytable($state, $url);
+
             break;
     }
     $mform->set_data($state->formdata());
 } else {
+    echo $OUTPUT->header();
     // Handle the form submission.
     if ($formdata !== null) {
         $state = new displaytablestate($formdata->plugins, 0, $formdata->targetlang, [], [],
-                                        $formdata->selectapi, $formdata->batchlimit, $formdata->selectoutput);
-        list($source, $results) = bftranslatelib::process_translation_from_state($state);
-        $state->source = $source;
-        $state->results = $results;
+                                        $formdata->selectapi, $formdata->batchlimit);
+        $results = bftranslatelib::process_translation_from_state($state);
+
         if (empty($results)) {
             echo $OUTPUT->notification(get_string('notranslationsneeded', 'local_bftranslate'), 'notifysuccess');
         } else if (isset($results['error'])) {
             echo $OUTPUT->notification($results['error'], 'notifywarning');
-        } else {
-            new displaytable($state, $url);
         }
+
+        $state->source = (isset($results[0])) ? $results[0] : [];
+        $state->results = (isset($results[1])) ? $results[1] : [];
+        new displaytable($state, $url);
     }
 }
 

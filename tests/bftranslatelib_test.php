@@ -172,7 +172,6 @@ final class bftranslatelib_test extends \advanced_testcase {
         $formdata->plugin = 'local_bftranslate';
         $formdata->targetlang = 'fr';
         $formdata->batchlimit = '5';
-        $formdata->selectoutput = 'table';
         $formdata->submitbutton = 'translate';
 
         // Test with existing strings - should not perform a translation.

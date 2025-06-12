@@ -45,9 +45,6 @@ class displaytablestate {
     /** @var int The batch limit. 0 = no limit. */
     public int $batchlimit;
 
-    /** @var string The selected output format. langstring = PHP language strings, table = Table. */
-    public string $selectoutput;
-
     /**
      * Constructor.
      *
@@ -58,11 +55,9 @@ class displaytablestate {
      * @param array $results The translated language strings. Array like [language key] => language string.
      * @param string $selectapi The selected translation API.
      * @param int $batchlimit The batch limit. 0 = no limit.
-     * @param string $selectoutput The selected output format. langstring = PHP language strings, table = Table.
      */
     public function __construct(array $requestedplugins = [], int $currentpluginindex = 0, string $targetlang = '',
-                                array $source = [], array $results = [], string $selectapi = '', int $batchlimit = 5,
-                                string $selectoutput = '') {
+                                array $source = [], array $results = [], string $selectapi = '', int $batchlimit = 5) {
         $this->requestedplugins = $requestedplugins;
         $this->currentpluginindex = $currentpluginindex;
         $this->targetlang = $targetlang;
@@ -70,7 +65,6 @@ class displaytablestate {
         $this->results = $results;
         $this->selectapi = $selectapi;
         $this->batchlimit = $batchlimit;
-        $this->selectoutput = $selectoutput;
     }
 
     /**
@@ -118,7 +112,6 @@ class displaytablestate {
             'results' => $this->results,
             'selectapi' => $this->selectapi,
             'batchlimit' => $this->batchlimit,
-            'selectoutput' => $this->selectoutput,
         ];
         return base64_encode(gzdeflate(json_encode($statedata)));
     }
@@ -134,7 +127,6 @@ class displaytablestate {
             'targetlang' => $this->targetlang,
             'selectapi' => $this->selectapi,
             'batchlimit' => $this->batchlimit,
-            'selectoutput' => $this->selectoutput,
         ];
     }
 
@@ -172,11 +164,6 @@ class displaytablestate {
             $batchlimit = (int)$encoded['batchlimit'];
         }
 
-        $selectoutput = 'table';
-        if (isset($encoded['selectoutput']) && in_array($encoded['selectoutput'], ['table', 'langstring'], true)) {
-            $selectoutput = $encoded['selectoutput'];
-        }
-
         return new displaytablestate(
             $requestedplugins,
             $currentpluginindex,
@@ -185,7 +172,6 @@ class displaytablestate {
             (isset($encoded['results']) && is_array($encoded['results'])) ? $encoded['results'] : [],
             $selectapi,
             $batchlimit,
-            $selectoutput
         );
     }
 }
