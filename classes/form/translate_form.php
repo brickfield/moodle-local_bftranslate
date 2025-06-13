@@ -34,6 +34,7 @@ class translate_form extends \moodleform {
      * @return void
      */
     public function definition() {
+        global $CFG;
         $mform = $this->_form;
 
         // Get list of installed plugins.
@@ -44,13 +45,15 @@ class translate_form extends \moodleform {
         // Sanity check which APIs to display.
         $config = get_config('local_bftranslate');
         $apis = [];
+        if (!empty($CFG->local_bftranslate_showdemo)) {
+            $apis['demo'] = 'Demo';
+        }
         if (!empty($config->azure_api_key)) {
             $apis['azure'] = 'Azure';
         }
         if (!empty($config->deepl_api_key)) {
             $apis['deepl'] = 'DeepL';
         }
-        $apis['demo'] = 'Demo';
         if (count($apis) > 0) {
             $mform->addElement('select', 'selectapi',
                 get_string('selectapi', 'local_bftranslate'), $apis);
