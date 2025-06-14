@@ -17,14 +17,14 @@
 namespace local_bftranslate;
 
 /**
- * Handles the translations through the DeepL API.
+ * A simple Rot13 translator for testing without API calls.
  *
  * @package    local_bftranslate
- * @author     Karen Holland <karen@brickfieldlabs.ie>
+ * @author     James McQuillan <james@brickfieldlabs.ie>
  * @copyright  2025 onward Brickfield Education Labs Ltd, https://www.brickfield.ie
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class demo_translator {
+class localtest_translator {
     /**
      * Constructor.
      */
@@ -47,11 +47,49 @@ class demo_translator {
                 $translations[$key] = '';
                 continue;
             }
-            $translatedtext = str_rot13($text);
+            $translatedtext = $this->translate_string($text);
             if ($translatedtext) {
                 $translations[$key] = $translatedtext;
             }
         }
         return $translations;
+    }
+
+    /**
+     * Translate a single string.
+     *
+     * @param string $string A string to translate.
+     * @return string The translated string.
+     */
+    public function translate_string(string $string): string {
+        // Protect placeholders.
+        $string = preg_replace('/\{\$a(?:->[^}]+)?\}/', '<x>$0</x>', $string);
+        // Split string by HTML tags or entire "notranslate" tags to avoid transforming them.
+        $parts = preg_split(
+            '/(<x\b[^>]*>.*?<\/x>|<[^>]+>)/is',
+            $string,
+            -1,
+            PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY
+        );
+
+        // Selective transform.
+        $out = '';
+        foreach ($parts as $p) {
+            $out .= ($p[0] === '<') ? $p : $this->dotransform($p);
+        }
+
+        // Remove notranslate tags.
+        $out = preg_replace('/<x>(.*?)<\/x>/', '$1', $out);
+        return $out;
+    }
+
+    /**
+     * Transform a string.
+     *
+     * @param string $txt The text to transform.
+     * @return string The transformed text.
+     */
+    private function dotransform(string $txt): string {
+        return str_rot13($txt);
     }
 }

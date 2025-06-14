@@ -45,8 +45,8 @@ class translate_form extends \moodleform {
         // Sanity check which APIs to display.
         $config = get_config('local_bftranslate');
         $apis = [];
-        if (!empty($CFG->local_bftranslate_showdemo)) {
-            $apis['demo'] = 'Demo';
+        if (!empty($config->showlocaltest)) {
+            $apis['localtest'] = 'Local test';
         }
         if (!empty($config->azure_api_key)) {
             $apis['azure'] = 'Azure';

@@ -18,7 +18,7 @@ namespace local_bftranslate;
 
 use local_bftranslate\deepl_translator;
 use local_bftranslate\azure_translator;
-use local_bftranslate\demo_translator;
+use local_bftranslate\localtest_translator;
 
 /**
  * Library class containing main functions.
@@ -311,8 +311,8 @@ class bftranslatelib {
         if ($api == 'azure') {
             $work = new azure_translator($config->azure_api_key);
             $results = $work->translate_batch($missing, $targetlang);
-        } else if ($api == 'demo') {
-            $work = new demo_translator();
+        } else if ($api == 'localtest') {
+            $work = new localtest_translator();
             $results = $work->translate_batch($missing, $targetlang);
         } else {
             $work = new deepl_translator($config->deepl_api_key);
@@ -448,7 +448,7 @@ class bftranslatelib {
             if ($errorfound === false) {
                 return true;
             }
-        } else if ($api == 'demo') {
+        } else if ($api == 'localtest') {
             return true;
         } else {
             $work = new deepl_translator($config->deepl_api_key);

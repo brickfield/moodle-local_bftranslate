@@ -46,6 +46,13 @@ $settings->add(new admin_setting_configcheckbox(
     '0'
 ));
 
+$settings->add(new admin_setting_configcheckbox(
+    'local_bftranslate/showlocaltest',
+    get_string('settings:showlocaltest', 'local_bftranslate'),
+    get_string('settings:showlocaltest_desc', 'local_bftranslate'),
+    '0'
+));
+
 $settings->add(new admin_setting_configtextarea('local_bftranslate/external_plugins',
     get_string('external_plugins', 'local_bftranslate'),
     get_string('external_plugins_desc', 'local_bftranslate'),
