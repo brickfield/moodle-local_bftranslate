@@ -45,14 +45,14 @@ class translate_form extends \moodleform {
         // Sanity check which APIs to display.
         $config = get_config('local_bftranslate');
         $apis = [];
-        if (!empty($config->showlocaltest)) {
-            $apis['localtest'] = 'Local test';
-        }
         if (!empty($config->azure_api_key)) {
-            $apis['azure'] = 'Azure';
+            $apis['azure'] = get_string('selectazure', 'local_bftranslate');
         }
         if (!empty($config->deepl_api_key)) {
-            $apis['deepl'] = 'DeepL';
+            $apis['deepl'] = get_string('selectdeepl', 'local_bftranslate');
+        }
+        if (!empty($config->showlocaltest)) {
+            $apis['localtest'] = get_string('selectlocaltest', 'local_bftranslate');
         }
         if (count($apis) > 0) {
             $mform->addElement('select', 'selectapi',
