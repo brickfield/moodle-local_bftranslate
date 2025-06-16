@@ -31,11 +31,9 @@ require_once($CFG->libdir . '/tablelib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class displaytable extends \flexible_table {
-    /** @var stdClass Course report filters. */
-    protected $filters;
 
-    /** @var array The results data. */
-    protected $results;
+    /** @var \local_bftranslate\displaytablestate State data. */
+    protected $state;
 
     /** @var int Sorting order. */
     protected $tdir;
@@ -46,23 +44,19 @@ class displaytable extends \flexible_table {
     /**
      * Constructor.
      * @param string $uniqueid
-     * @param stdClass $filters
-     * @param array $results
+     * @param \local_bftranslate\displaytablestate $state
      * @param string $url
      */
-    public function __construct($uniqueid, $filters, $results, $url) {
-
-        $this->filters = $filters;
-        $this->results = $results;
+    public function __construct(\local_bftranslate\displaytablestate $state, $url) {
+        $this->state = $state;
         $this->define_baseurl($url);
-        parent::__construct($uniqueid);
+        parent::__construct('local_bftranslate_displaytable');
 
         $languages = bftranslatelib::get_installed_languages();
         $this->tdir = optional_param($this->request[TABLE_VAR_DIR], '', PARAM_INT);
         $this->tsort = optional_param($this->request[TABLE_VAR_SORT], '', PARAM_ALPHANUMEXT);
-        $langdesc = $languages[$results['targetlang']];
-        $captionparams = ['plugin' => get_string('pluginname', $results['plugin']),
-            'targetlang' => $langdesc];
+        $langdesc = $languages[$this->state->targetlang];
+        $captionparams = ['plugin' => get_string('pluginname', $this->state->current_plugin()), 'targetlang' => $langdesc];
         $caption = get_string('tablecaption', 'local_bftranslate', $captionparams);
         $this->set_caption($caption, []);
 
@@ -76,9 +70,6 @@ class displaytable extends \flexible_table {
             'sourcestring',
             'targetstring',
         ];
-        if ($results['selectoutput'] == 'langstring') {
-            $columns = ['langstringformat'];
-        }
 
         $this->define_columns($columns);
         $this->no_sorting('all');
@@ -89,9 +80,6 @@ class displaytable extends \flexible_table {
             get_string('tableheader:sourcestring', 'local_bftranslate'),
             get_string('tableheader:targetstring', 'local_bftranslate'),
         ];
-        if ($results['selectoutput'] == 'langstring') {
-            $headers = [get_string('tableheader:langstring', 'local_bftranslate')];
-        }
 
         $this->define_headers($headers);
 
@@ -100,29 +88,26 @@ class displaytable extends \flexible_table {
 
         $testdata = [];
         $matching = [];
-        foreach ($results['source'] as $key => $string) {
-            if ($string == $results['results'][$key]) {
+        foreach ($this->state->source as $key => $string) {
+            if (!isset($this->state->results[$key])) {
+                continue;
+            }
+            if ($string == $this->state->results[$key]) {
                 $matching[] = $string;
             }
+
             // Encode key in case of special chars.
             $encodedkey = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($key));
             $row = [
                 'key' => $key,
                 'sourcestring' => $string,
-                'targetstring' => \html_writer::tag('textarea', s($results['results'][$key]), [
+                'targetstring' => \html_writer::tag('textarea', s($this->state->results[$key]), [
                     'name' => "translations[" . $encodedkey . "]",
                     'aria-label' => "translation text for " . $key,
                     'rows' => 2,
                     'cols' => 50,
                 ]),
             ];
-            if ($results['selectoutput'] == 'langstring') {
-                $langdata = [
-                    'key' => $key,
-                    'value' => str_replace('\'', '\\\'', $results['results'][$key]),
-                ];
-                $row = ['langstringformat' => s(get_string('langstringformat', 'local_bftranslate', $langdata))];
-            }
             $testdata[] = $row;
         }
         $this->setup();
@@ -134,18 +119,36 @@ class displaytable extends \flexible_table {
         }
         echo \html_writer::start_tag('form', ['method' => 'post', 'action' => $url]);
         echo \html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
-        echo \html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'plugin', 'value' => $results['plugin']]);
-        echo \html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'targetlang', 'value' => $results['targetlang']]);
-
+        echo \html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'state', 'value' => $this->state->encode()]);
         $this->format_and_add_array_of_rows($testdata);
 
+        // Submit buttons.
         echo \html_writer::start_div('form-group');
-        echo \html_writer::tag('button', get_string('savechanges', 'local_bftranslate'), [
-            'type' => 'submit',
-            'name' => 'save',
-            'value' => 'submit',
-            'class' => 'btn btn-primary',
-        ]);
+        echo \html_writer::start_div('form-group', ['style' => 'margin-top:10px;display:flex;flex-flow:row wrap;gap:10px']);
+        if (!empty($this->state->results)) {
+            echo \html_writer::tag('button', get_string('savechanges', 'local_bftranslate'), [
+                'type' => 'submit',
+                'name' => 'doaction',
+                'value' => 'save',
+                'class' => 'btn btn-primary',
+            ]);
+            echo \html_writer::tag('button', get_string('switchview-langstring', 'local_bftranslate'), [
+                'type' => 'submit',
+                'name' => 'doaction',
+                'value' => 'switchview-langstring',
+                'class' => 'btn btn-primary',
+            ]);
+        }
+        echo \html_writer::span('', '', ['style' => 'flex-grow: 1']);
+        if (!empty($this->state->next_plugin())) {
+            echo \html_writer::tag('button', get_string('nextplugin', 'local_bftranslate', ['plugin' => $this->state->next_plugin()]), [
+                'type' => 'submit',
+                'name' => 'doaction',
+                'value' => 'nextplugin',
+                'class' => 'btn btn-primary',
+            ]);
+        }
+        echo \html_writer::end_div();
         echo \html_writer::end_div();
         echo \html_writer::end_tag('form');
         echo('<hr><hr>');

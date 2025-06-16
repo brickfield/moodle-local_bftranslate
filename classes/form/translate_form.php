@@ -16,6 +16,10 @@
 
 namespace local_bftranslate\form;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__.'/../../../../lib/formslib.php');
+
 /**
  * Class translate_form
  *
@@ -30,6 +34,7 @@ class translate_form extends \moodleform {
      * @return void
      */
     public function definition() {
+        global $CFG;
         $mform = $this->_form;
 
         // Get list of installed plugins.
@@ -41,10 +46,13 @@ class translate_form extends \moodleform {
         $config = get_config('local_bftranslate');
         $apis = [];
         if (!empty($config->azure_api_key)) {
-            $apis['azure'] = 'Azure';
+            $apis['azure'] = get_string('selectazure', 'local_bftranslate');
         }
         if (!empty($config->deepl_api_key)) {
-            $apis['deepl'] = 'DeepL';
+            $apis['deepl'] = get_string('selectdeepl', 'local_bftranslate');
+        }
+        if (!empty($config->showlocaltest)) {
+            $apis['localtest'] = get_string('selectlocaltest', 'local_bftranslate');
         }
         if (count($apis) > 0) {
             $mform->addElement('select', 'selectapi',
@@ -55,9 +63,10 @@ class translate_form extends \moodleform {
                 get_string('selectnoapis', 'local_bftranslate'));
         }
 
-        $mform->addElement('select', 'plugin', get_string('selectplugin', 'local_bftranslate'), $plugins);
-        $mform->setType('plugin', PARAM_ALPHANUMEXT);
-        $mform->addHelpButton('plugin', 'selectplugin', 'local_bftranslate');
+        $select = $mform->addElement('select', 'plugins', get_string('selectplugin', 'local_bftranslate'), $plugins);
+        $select->setMultiple(true);
+        $mform->setType('plugins', PARAM_ALPHANUMEXT);
+        $mform->addHelpButton('plugins', 'selectplugin', 'local_bftranslate');
 
         $mform->addElement('select', 'targetlang',
             get_string('selectlanguage', 'local_bftranslate'), $targetlanguages);
@@ -67,10 +76,6 @@ class translate_form extends \moodleform {
         $batchlimit = [0 => 0, 5 => 5, 10 => 10, 50 => 50, 100 => 100, 150 => 150, 200 => 200, 250 => 250, 300 => 300];
         $mform->addElement('select', 'batchlimit', get_string('selectbatchlimit', 'local_bftranslate'), $batchlimit);
         $mform->setType('batchlimit', PARAM_INT);
-
-        $mform->addElement('select', 'selectoutput',
-        get_string('selectoutput', 'local_bftranslate'), ['table' => 'Table', 'langstring' => 'PHP Language String']);
-        $mform->setType('selectoutput', PARAM_ALPHANUMEXT);
 
         $this->add_action_buttons(true, get_string('translate', 'local_bftranslate'));
     }
@@ -89,8 +94,8 @@ class translate_form extends \moodleform {
             $errors['selectapi'] = get_string('selectnoapis', 'local_bftranslate');
         }
 
-        if ($data['plugin'] === '') {
-            $errors['plugin'] = get_string('emptyplugin', 'local_bftranslate');
+        if ($data['plugins'] === '') {
+            $errors['plugins'] = get_string('emptyplugin', 'local_bftranslate');
         }
 
         if ($data['targetlang'] === '') {
