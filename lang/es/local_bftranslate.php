@@ -18,6 +18,8 @@
  * Language strings for local_bftranslate.
  *
  * @package    local_bftranslate
+ * @category   string
+ * @copyright  2025 onward Brickfield Education Labs Ltd, https://www.brickfield.ie
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -54,8 +56,8 @@ $string['reporttitle'] = 'Descargar Informe del Traductor';
 $string['savechanges'] = 'Guardar cambios como cadenas de idioma personalizadas';
 $string['selectapi'] = 'Seleccione la API';
 $string['selectazure'] = 'Azure';
-$string['selectdeepl'] = 'DeepL';
 $string['selectbatchlimit'] = 'Seleccione el límite de lote opcional';
+$string['selectdeepl'] = 'DeepL';
 $string['selectlanguage'] = 'Seleccione el idioma de destino';
 $string['selectlanguage_help'] = 'Incluye los idiomas que están en la lista permitida y que se han instalado como paquetes de idioma.';
 $string['selectlocaltest'] = 'Test local';
