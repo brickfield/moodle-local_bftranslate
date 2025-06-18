@@ -380,7 +380,7 @@ class bftranslatelib {
      * @return string The PHP code for a strings file.
      */
     public static function generate_strings_file(array $strings, string $plugin): string {
-        $config = get_config('local_bftranslate');
+        $copyright = get_string('copyright_text', 'local_bftranslate');
 
         // Prepare language file content.
         $content = "<?php\n";
@@ -397,7 +397,7 @@ class bftranslatelib {
         $content .= "// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.\n\n";
         $content .= "/**\n * Language strings for {$plugin}.\n";
         $content .= " *\n * @package    {$plugin}\n * @category   string\n";
-        $content .= " * @copyright  {$config->copyright}\n * @license    ";
+        $content .= " * @copyright  {$copyright}\n * @license    ";
         $content .= "http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later\n */\n\n";
         $content .= "defined('MOODLE_INTERNAL') || die();\n\n";
 
