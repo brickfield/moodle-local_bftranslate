@@ -54,6 +54,11 @@ if ($hassiteconfig) {
         '0'
     ));
 
+    $settings->add(new admin_setting_configtext('local_bftranslate/copyright',
+        get_string('settings:copyright', 'local_bftranslate'),
+        get_string('settings:copyright_desc', 'local_bftranslate'),
+        get_string('settings:copyright_default', 'local_bftranslate'), PARAM_TEXT));
+
     $settings->add(new admin_setting_configtextarea('local_bftranslate/external_plugins',
         get_string('external_plugins', 'local_bftranslate'),
         get_string('external_plugins_desc', 'local_bftranslate'),
