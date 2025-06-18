@@ -141,12 +141,14 @@ class displaytable extends \flexible_table {
         }
         echo \html_writer::span('', '', ['style' => 'flex-grow: 1']);
         if (!empty($this->state->next_plugin())) {
-            echo \html_writer::tag('button', get_string('nextplugin', 'local_bftranslate', ['plugin' => $this->state->next_plugin()]), [
-                'type' => 'submit',
-                'name' => 'doaction',
-                'value' => 'nextplugin',
-                'class' => 'btn btn-primary',
-            ]);
+            echo \html_writer::tag('button',
+                get_string('nextplugin', 'local_bftranslate', ['plugin' => $this->state->next_plugin()]),
+                [
+                    'type' => 'submit',
+                    'name' => 'doaction',
+                    'value' => 'nextplugin',
+                    'class' => 'btn btn-primary',
+                ]);
         }
         echo \html_writer::end_div();
         echo \html_writer::end_div();
