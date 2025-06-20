@@ -192,7 +192,7 @@ class bftranslatelib {
         $missing = [];
         if ($batchlimit > 0 ) {
             // Loop through all english strings until missing strings are equal to batch limit, or all strings have been checked.
-            while($offset < count($englishstrings)) {
+            while ($offset < count($englishstrings)) {
                 $batchstrings = array_slice($englishstrings, $offset, $batchlimit);
 
                 foreach ($batchstrings as $key => $string) {
