@@ -62,6 +62,7 @@ if (!empty($stateencoded)) {
 
 if (!empty($doaction) && !empty($state)) {
     // Translations already completed, do an action with the results.
+    require_sesskey();
     switch ($doaction) {
         case 'save':
             echo $OUTPUT->header();
