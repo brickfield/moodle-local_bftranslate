@@ -27,6 +27,7 @@ $string['apikey:azure'] = 'Azure API Key';
 $string['apikey:azure_desc'] = 'Enter your Azure API key to enable translations.';
 $string['apikey:deepl'] = 'DeepL API Key';
 $string['apikey:deepl_desc'] = 'Enter your DeepL API key to enable translations.';
+$string['bftranslate:viewall'] = 'View all Brickfield Plugin Translator features';
 $string['branding:academy'] = 'Training Academy';
 $string['branding:assessment'] = 'Assessment Bundle';
 $string['branding:audit'] = 'Accessibility Audit';
