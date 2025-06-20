@@ -40,8 +40,6 @@ $string['branding:toolkit'] = 'Kit de Accesibilidad';
 $string['branding:ux'] = 'Bundle de Experiencia de Usuario';
 $string['emptyplugin'] = 'No se ha enviado ninguna extensión';
 $string['emptytargetlang'] = 'No se ha enviado ningún idioma de destino';
-$string['external_plugins'] = 'Extensiones externas';
-$string['external_plugins_desc'] = 'Introduzca una lista separada por comas de las extensiones externas instalados.';
 $string['filename'] = 'Descargar Traductor';
 $string['langnotsupported'] = 'El idioma \'{$a}\' no es compatible con esta API enviada.';
 $string['langstringformat'] = '$string[\'{$a->key}\'] = \'{$a->value}\';';

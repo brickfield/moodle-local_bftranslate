@@ -54,11 +54,6 @@ if ($hassiteconfig) {
         '0'
     ));
 
-    $settings->add(new admin_setting_configtextarea('local_bftranslate/external_plugins',
-        get_string('external_plugins', 'local_bftranslate'),
-        get_string('external_plugins_desc', 'local_bftranslate'),
-        '', PARAM_TEXT));
-
     $ADMIN->add('local_bftranslate_folder', $settings);
 
     $ADMIN->add('local_bftranslate_folder', new admin_externalpage('local_bftranslate_report',
