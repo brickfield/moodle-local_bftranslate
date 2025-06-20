@@ -40,8 +40,6 @@ $string['branding:ux'] = 'User Experience Bundle';
 $string['copyright_text'] = 'Created by Brickfield Translator https://www.brickfield.ie/translator/';
 $string['emptyplugin'] = 'No Plugin Submitted';
 $string['emptytargetlang'] = 'No Target Language Submitted';
-$string['external_plugins'] = 'External Plugins';
-$string['external_plugins_desc'] = 'Enter a comma separated list of installed external plugins.';
 $string['filename'] = 'Translator Download';
 $string['langnotsupported'] = 'Language \'{$a}\' is not supported on this submitted API.';
 $string['langstringformat'] = '$string[\'{$a->key}\'] = \'{$a->value}\';';

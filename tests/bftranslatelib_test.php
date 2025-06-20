@@ -45,51 +45,6 @@ final class bftranslatelib_test extends \advanced_testcase {
     }
 
     /**
-     * Test get_plugins()
-     *
-     * @covers \local_bftranslate\bftranslatelib::get_plugins
-     *
-     * @return void
-     */
-    public function test_get_plugins(): void {
-        $this->resetAfterTest();
-        $this->preventResetByRollback();
-
-        // Need to configure this plugin for detection.
-        set_config('allowcoretranslation', 0, 'local_bftranslate');
-        set_config('external_plugins', 'local_bftranslate', 'local_bftranslate');
-
-        $results = bftranslatelib::get_plugins();
-
-        $this->assertIsArray($results);
-        $this->assertContains('local_bftranslate', $results);
-    }
-
-    /**
-     * Test get_plugins_dropdown_array
-     *
-     * @covers \local_bftranslate\bftranslatelib::get_plugins_dropdown_array
-     * @covers \local_bftranslate\bftranslatelib::get_plugins
-     *
-     * @return void
-     */
-    public function test_get_plugins_dropdown_array(): void {
-        $this->resetAfterTest();
-        $this->preventResetByRollback();
-
-        // Need to configure this plugin for detection.
-        set_config('allowcoretranslation', 0, 'local_bftranslate');
-        set_config('external_plugins', 'local_bftranslate', 'local_bftranslate');
-
-        $results = bftranslatelib::get_plugins_dropdown_array();
-
-        $label = get_string('pluginname', 'local_bftranslate') . ' (local_bftranslate)';
-        $this->assertIsArray($results);
-        $this->assertContains('Select', $results);
-        $this->assertContains($label, $results);
-    }
-
-    /**
      * Test get_language_mapped()
      *
      * @covers \local_bftranslate\bftranslatelib::get_language_mapped

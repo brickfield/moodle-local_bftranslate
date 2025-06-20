@@ -40,8 +40,6 @@ $string['branding:toolkit'] = 'Toolkit voor toegankelijkheid';
 $string['branding:ux'] = 'Bundel Gebruikerservaring';
 $string['emptyplugin'] = 'Geen plugin ingediend';
 $string['emptytargetlang'] = 'Geen doeltaal ingediend';
-$string['external_plugins'] = 'Externe plugins';
-$string['external_plugins_desc'] = 'Voer een door komma\'s gescheiden lijst van geïnstalleerde externe plug-ins in.';
 $string['filename'] = 'Vertaler downloaden';
 $string['langnotsupported'] = 'Taal \'{$a}\' wordt niet ondersteund op deze ingediende API.';
 $string['langstringformat'] = '$string[\'{$a->key}\'] = \'{$a->value}\';';

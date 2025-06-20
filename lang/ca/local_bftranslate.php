@@ -40,8 +40,6 @@ $string['branding:toolkit'] = 'Kit d\'Accessibilitat';
 $string['branding:ux'] = 'Bundle d\'Experiència d\'Usuari';
 $string['emptyplugin'] = 'No s\'ha enviat cap connector';
 $string['emptytargetlang'] = 'No s\'ha enviat cap idioma de destinació';
-$string['external_plugins'] = 'Connectors externs';
-$string['external_plugins_desc'] = 'Introduïu una llista separada per comes dels connectors externs instal·lats.';
 $string['filename'] = 'Descarrega el Traductor';
 $string['langnotsupported'] = 'La llengua "{$a}" no és compatible amb aquesta API enviada.';
 $string['langstringformat'] = '$string[\'{$a->key}\'] = \'{$a->value}\';';
