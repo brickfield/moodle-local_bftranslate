@@ -370,6 +370,9 @@ class bftranslatelib {
 
         // Write sorted content to the language file.
         file_put_contents($langfile, $content);
+
+        // Purge language cache so strings aren't re-processed.
+        purge_caches(['lang' => true]);
     }
 
     /**
