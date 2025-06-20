@@ -52,7 +52,7 @@ class localtest_translator {
                 $translations[$key] = $translatedtext;
             }
         }
-        return $translations;
+        return [$translations, []];
     }
 
     /**

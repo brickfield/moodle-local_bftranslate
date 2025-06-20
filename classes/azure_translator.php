@@ -16,6 +16,7 @@
 
 namespace local_bftranslate;
 
+use local_bftranslate\local\exception\translateerror;
 /**
  * Handles the translations through the Azure API.
  *
@@ -49,6 +50,7 @@ class azure_translator {
      */
     public function translate_batch(array $strings, string $targetlang): array {
         $translations = [];
+        $errors = [];
 
         foreach ($strings as $key => $text) {
             // Skip empty strings, but still add to array for display in the table.
@@ -56,12 +58,16 @@ class azure_translator {
                 $translations[$key] = '';
                 continue;
             }
-            $translatedtext = $this->translate($text, $targetlang);
-            if ($translatedtext) {
-                $translations[$key] = $translatedtext;
+            try {
+                $translatedtext = $this->translate($text, $targetlang);
+                if ($translatedtext) {
+                    $translations[$key] = $translatedtext;
+                }
+            } catch (translateerror $e) {
+                $errors[$key] = $e->getMessage();
             }
         }
-        return $translations;
+        return [$translations, $errors];
     }
 
     /**
@@ -130,7 +136,11 @@ class azure_translator {
             if (isset($decoded[0]['translations'][0]['text'])) {
                 $decoded[0]['translations'][0]['text'] = static::remove_notranslate_tags($decoded[0]['translations'][0]['text']);
             } else {
-                return 'bftranslateerror:' . $decoded['error']['code'];
+                if ($decoded['error']['code'] == 401001) {
+                    throw new translateerror('Invalid Key ('.$decoded['error']['code'].')');
+                } else {
+                    throw new translateerror($decoded['error']['code']);
+                }
             }
             return $decoded[0]['translations'][0]['text'] ?? null;
         }

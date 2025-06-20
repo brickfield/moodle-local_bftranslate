@@ -80,18 +80,24 @@ if (!empty($doaction) && !empty($state)) {
         case 'nextplugin':
             echo $OUTPUT->header();
             $state->currentpluginindex += 1;
-            $results = bftranslatelib::process_translation($state->current_plugin(), $state->targetlang,
+            list($missing, $results, $errors) = bftranslatelib::process_translation($state->current_plugin(), $state->targetlang,
                                                             $state->selectapi, $state->batchlimit);
-            if (empty($results)) {
+            if (empty($missing)) {
                 echo $OUTPUT->notification(get_string('notranslationsneeded', 'local_bftranslate'), 'notifysuccess');
-            } else if (isset($results['error'])) {
-                echo $OUTPUT->notification($results['error'], 'notifywarning');
+            }
+            if (!empty($errors)) {
+                $errstr = get_string('errorsencountered', 'local_bftranslate');
+                $errstr .= '<ul>';
+                foreach ($errors as $key => $error) {
+                    $errstr .= '<li>'.$key.': '.$error.'</li>';
+                }
+                $errstr .= '</ul>';
+                echo $OUTPUT->notification($errstr, 'notifywarning');
             }
 
-            $state->source = (isset($results[0])) ? $results[0] : [];
-            $state->results = (isset($results[1])) ? $results[1] : [];
+            $state->source = $missing;
+            $state->results = $results;
             new displaytable($state, $url);
-
             break;
     }
     $mform->set_data($state->formdata());
@@ -101,16 +107,23 @@ if (!empty($doaction) && !empty($state)) {
     if ($formdata !== null) {
         $state = new displaytablestate($formdata->plugins, 0, $formdata->targetlang, [], [],
                                         $formdata->selectapi, $formdata->batchlimit);
-        $results = bftranslatelib::process_translation_from_state($state);
+        list($missing, $results, $errors) = bftranslatelib::process_translation_from_state($state);
 
-        if (empty($results)) {
+        if (empty($missing)) {
             echo $OUTPUT->notification(get_string('notranslationsneeded', 'local_bftranslate'), 'notifysuccess');
-        } else if (isset($results['error'])) {
-            echo $OUTPUT->notification($results['error'], 'notifywarning');
+        }
+        if (!empty($errors)) {
+            $errstr = get_string('errorsencountered', 'local_bftranslate');
+            $errstr .= '<ul>';
+            foreach ($errors as $key => $error) {
+                $errstr .= '<li>'.$key.': '.$error.'</li>';
+            }
+            $errstr .= '</ul>';
+            echo $OUTPUT->notification($errstr, 'notifywarning');
         }
 
-        $state->source = (isset($results[0])) ? $results[0] : [];
-        $state->results = (isset($results[1])) ? $results[1] : [];
+        $state->source = $missing;
+        $state->results = $results;
         new displaytable($state, $url);
     }
 }

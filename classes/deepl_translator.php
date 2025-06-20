@@ -16,6 +16,7 @@
 
 namespace local_bftranslate;
 
+use local_bftranslate\local\exception\translateerror;
 /**
  * Handles the translations through the DeepL API.
  *
@@ -49,6 +50,7 @@ class deepl_translator {
      */
     public function translate_batch(array $strings, string $targetlang): array {
         $translations = [];
+        $errors = [];
 
         foreach ($strings as $key => $text) {
             // Skip empty strings, but still add to array for display in the table.
@@ -56,12 +58,16 @@ class deepl_translator {
                 $translations[$key] = '';
                 continue;
             }
-            $translatedtext = $this->translate($text, $targetlang);
-            if ($translatedtext) {
-                $translations[$key] = $translatedtext;
+            try {
+                $translatedtext = $this->translate($text, $targetlang);
+                if ($translatedtext) {
+                    $translations[$key] = $translatedtext;
+                }
+            } catch (translateerror $e) {
+                $errors[$key] = $e->getMessage();
             }
         }
-        return $translations;
+        return [$translations, $errors];
     }
 
     /**
@@ -116,7 +122,7 @@ class deepl_translator {
             if (isset($decoded['translations'][0]['text'])) {
                 $decoded['translations'][0]['text'] = static::remove_notranslate_tags($decoded['translations'][0]['text']);
             } else {
-                return 'bftranslateerror:' . $decoded['message'];
+                throw new translateerror($decoded['message']);
             }
             return $decoded['translations'][0]['text'] ?? null;
         }
