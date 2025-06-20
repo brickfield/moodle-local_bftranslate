@@ -173,15 +173,20 @@ class bftranslatelib {
         $info = \core_plugin_manager::instance()->get_plugin_info($plugin);
         $langfilename = static::get_langfilename($plugin);
         $path = $info->rootdir .'/lang/en/' . $langfilename;
+        $missing = [];
+        $results = [];
+        $errors = [];
 
         if (!file_exists($path)) {
-            return ['error' => get_string('nofilefound', 'local_bftranslate')];
+            $errors[] = get_string('nofilefound', 'local_bftranslate');
+            return [$missing, $results, $errors];
         }
 
         // Check API / targetlang is supported on API.
         $supported = static::lang_supported($api, $targetlang);
         if (!$supported) {
-            return ['error' => get_string('langnotsupported', 'local_bftranslate', $targetlang)];
+            $errors[] = get_string('langnotsupported', 'local_bftranslate', $targetlang);
+            return [$missing, $results, $errors];
         }
 
         // Load all strings from the English language pack.
@@ -189,7 +194,6 @@ class bftranslatelib {
         $targetstrings = get_string_manager()->load_component_strings($plugin, $targetlang);
 
         $offset = 0;
-        $missing = [];
         if ($batchlimit > 0 ) {
             // Loop through all english strings until missing strings are equal to batch limit, or all strings have been checked.
             while ($offset < count($englishstrings)) {
@@ -221,22 +225,22 @@ class bftranslatelib {
 
         // Return early if there are no strings to be translated.
         if (empty($missing)) {
-            return [];
+            return [$missing, $results, $errors];
         }
 
         $targetlang = static::get_language_mapped($api, $targetlang);
         if ($api == 'azure') {
             $work = new azure_translator($config->azure_api_key);
-            $results = $work->translate_batch($missing, $targetlang);
+            list($results, $errors) = $work->translate_batch($missing, $targetlang);
         } else if ($api == 'localtest') {
             $work = new localtest_translator();
-            $results = $work->translate_batch($missing, $targetlang);
+            list($results, $errors) = $work->translate_batch($missing, $targetlang);
         } else {
             $work = new deepl_translator($config->deepl_api_key);
-            $results = $work->translate_batch($missing, $targetlang);
+            list($results, $errors) = $work->translate_batch($missing, $targetlang);
         }
 
-        return [$missing, $results];
+        return [$missing, $results, $errors];
     }
 
     /**
@@ -366,8 +370,8 @@ class bftranslatelib {
         $targetlang = static::get_language_mapped($api, $targetlang);
         if ($api == 'azure') {
             $work = new azure_translator($config->azure_api_key);
-            $results = $work->translate_batch($test, $targetlang);
-            $errorfound = stripos($results['test'], '400036');
+            list($results, $errors) = $work->translate_batch($test, $targetlang);
+            $errorfound = (isset($errors['test']) && stripos($errors['test'], '400036'));
             if ($errorfound === false) {
                 return true;
             }
@@ -375,8 +379,8 @@ class bftranslatelib {
             return true;
         } else {
             $work = new deepl_translator($config->deepl_api_key);
-            $results = $work->translate_batch($test, $targetlang);
-            $errorfound = stripos($results['test'], 'Value for \'target_lang\' not supported.');
+            list($results, $errors) = $work->translate_batch($test, $targetlang);
+            $errorfound = (isset($errors['test']) && stripos($errors['test'], 'Value for \'target_lang\' not supported.'));
             if ($errorfound === false) {
                 return true;
             }
