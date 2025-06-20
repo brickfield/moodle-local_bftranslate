@@ -188,17 +188,34 @@ class bftranslatelib {
         $englishstrings = get_string_manager()->load_component_strings($plugin, 'en');
         $targetstrings = get_string_manager()->load_component_strings($plugin, $targetlang);
 
-        if ($batchlimit > 0) {
-            $englishstrings = array_slice($englishstrings, 0, $batchlimit);
-        }
-
+        $offset = 0;
         $missing = [];
-        foreach ($englishstrings as $key => $string) {
-            // Check if string needs translating: is missing, empty, or identical to English in the target language.
-            if ((!isset($targetstrings[$key])
-                || empty(trim($targetstrings[$key])))
-                || ($targetstrings[$key] == $string)) {
-                $missing[$key] = $string;
+        if ($batchlimit > 0 ) {
+            // Loop through all english strings until missing strings are equal to batch limit, or all strings have been checked.
+            while($offset < count($englishstrings)) {
+                $batchstrings = array_slice($englishstrings, $offset, $batchlimit);
+
+                foreach ($batchstrings as $key => $string) {
+                    // Check if string needs translating: is missing, empty, or identical to English in the target language.
+                    if ((!isset($targetstrings[$key])
+                        || empty(trim($targetstrings[$key])))
+                        || ($targetstrings[$key] == $string)) {
+                        $missing[$key] = $string;
+                    }
+                    if (count($missing) == $batchlimit) {
+                        break 2;
+                    }
+                }
+                $offset += $batchlimit;
+            }
+        } else {
+            foreach ($englishstrings as $key => $string) {
+                // Check if string needs translating: is missing, empty, or identical to English in the target language.
+                if ((!isset($targetstrings[$key])
+                    || empty(trim($targetstrings[$key])))
+                    || ($targetstrings[$key] == $string)) {
+                    $missing[$key] = $string;
+                }
             }
         }
 
