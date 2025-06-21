@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_bftranslate';
-$plugin->release   = '1.401.01 (Build - 2025061900)';
-$plugin->version   = 2025020407;
+$plugin->release   = '1.401.02 (Build - 2025062000)';
+$plugin->version   = 2025020408;
 $plugin->requires  = 2022112800; // Moodle 4.1 and up.
 $plugin->maturity  = MATURITY_STABLE;
 
