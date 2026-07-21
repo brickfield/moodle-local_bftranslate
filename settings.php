@@ -51,6 +51,14 @@ if ($hassiteconfig) {
         '',
     ));
 
+    $settings->add(new admin_setting_configtext(
+        'local_bftranslate/azure_region',
+        get_string('settings:azureregion', 'local_bftranslate'),
+        get_string('settings:azureregion_desc', 'local_bftranslate'),
+        'westeurope',
+        PARAM_ALPHANUMEXT,
+    ));
+
     $settings->add(new admin_setting_configcheckbox(
         'local_bftranslate/allowcoretranslation',
         get_string('settings:allowcoretranslation', 'local_bftranslate'),

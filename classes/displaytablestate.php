@@ -177,11 +177,13 @@ class displaytablestate {
 
         $requestedplugins = [];
         if (isset($encoded['requestedplugins']) && is_array($encoded['requestedplugins'])) {
-            // Clean each component name; PARAM_COMPONENT rejects anything that is
-            // not a valid frankenstyle name, blocking path traversal via the plugin.
+            // Clean each component name (PARAM_COMPONENT blocks path traversal) and
+            // only accept components the tool actually offers, so the
+            // allowcoretranslation restriction cannot be bypassed via the state blob.
+            $allowed = array_flip(bftranslatelib::get_plugins());
             foreach ($encoded['requestedplugins'] as $plugin) {
                 $plugin = clean_param($plugin, PARAM_COMPONENT);
-                if ($plugin !== '') {
+                if ($plugin !== '' && isset($allowed[$plugin])) {
                     $requestedplugins[] = $plugin;
                 }
             }
@@ -217,14 +219,36 @@ class displaytablestate {
             $requestedplugins,
             $currentpluginindex,
             $targetlang,
-            (isset($encoded['source']) && is_array($encoded['source'])) ? $encoded['source'] : [],
-            (isset($encoded['results']) && is_array($encoded['results'])) ? $encoded['results'] : [],
-            (isset($encoded['existing']) && is_array($encoded['existing'])) ? $encoded['existing'] : [],
-            (isset($encoded['existingtranslated']) && is_array($encoded['existingtranslated']))
-                ? $encoded['existingtranslated'] : [],
+            self::clean_string_map($encoded['source'] ?? []),
+            self::clean_string_map($encoded['results'] ?? []),
+            self::clean_string_map($encoded['existing'] ?? []),
+            self::clean_string_map($encoded['existingtranslated'] ?? []),
             $selectapi,
             $batchlimit,
             $showexisting,
         );
+    }
+
+    /**
+     * Clean a decoded [key => string] map that arrived from request input.
+     *
+     * The translation values come from the encoded state (request input), so each
+     * string is cleaned with PARAM_CLEANHTML - the same treatment the translations
+     * form field receives - to strip scripts and dangerous markup while keeping the
+     * benign HTML that language strings legitimately contain. This closes the
+     * stored/reflected XSS path where state values bypassed the form-field cleaning.
+     *
+     * @param mixed $values The decoded value, expected to be an array.
+     * @return array The cleaned [key => string] map.
+     */
+    private static function clean_string_map($values): array {
+        if (!is_array($values)) {
+            return [];
+        }
+        $clean = [];
+        foreach ($values as $key => $value) {
+            $clean[(string)$key] = is_string($value) ? clean_param($value, PARAM_CLEANHTML) : '';
+        }
+        return $clean;
     }
 }

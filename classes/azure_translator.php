@@ -112,7 +112,12 @@ class azure_translator {
         $curl->setopt(['CURLOPT_POST' => true]);
         $curl->setopt(['CURLOPT_TIMEOUT' => 30]);
         $authstring = 'Ocp-Apim-Subscription-Key: ' . $this->apikey;
-        $region = 'Ocp-Apim-Subscription-Region: westeurope';
+        // Azure keys are region-scoped, so the region must match the subscription.
+        $regionvalue = get_config('local_bftranslate', 'azure_region');
+        if (empty($regionvalue)) {
+            $regionvalue = 'westeurope';
+        }
+        $region = 'Ocp-Apim-Subscription-Region: ' . $regionvalue;
         $curl->setopt(['CURLOPT_HTTPHEADER' => [$authstring, $region, 'Content-Type: application/json']]);
 
         $response = $curl->post($url, $string);

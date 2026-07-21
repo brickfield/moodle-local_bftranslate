@@ -118,8 +118,8 @@ class displaytable extends \flexible_table {
             // Encode key in case of special chars.
             $encodedkey = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($key));
             $row = [
-                'key' => $key,
-                'sourcestring' => $string,
+                'key' => s($key),
+                'sourcestring' => s($string),
                 'targetstring' => \html_writer::tag('textarea', s($fullresults[$key]), [
                     'name' => "translations[" . $encodedkey . "]",
                     'aria-label' => get_string('translationlabel', 'local_bftranslate', $key),
@@ -137,7 +137,7 @@ class displaytable extends \flexible_table {
         $this->setup();
         // Detect if any matching strings have been detected.
         if (count($matching) > 0) {
-            $matchingstr = implode(', ', $matching);
+            $matchingstr = implode(', ', array_map('s', $matching));
             echo \html_writer::tag(
                 'div',
                 get_string('matchingstrings', 'local_bftranslate', $matchingstr),

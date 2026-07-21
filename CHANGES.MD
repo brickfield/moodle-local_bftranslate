@@ -1,5 +1,26 @@
 # Changes Release Notes
 
+## Version 2.405.1
+
+Security and hardening release, addressing an external code review.
+
+## Bug fixes / Security
+
+* Sanitise the translation values decoded from the posted state so raw HTML/JS
+  can no longer be smuggled past the form-field cleaning into a saved language
+  string (stored XSS) — decoded values are now cleaned with PARAM_CLEANHTML.
+* Escape the source string and key columns in the comparison table (reflected XSS).
+* Enforce the "allow core translation" setting on the decoded state path, not just
+  the form dropdown.
+* Type the `viewall` capability as `write` and declare its XSS/config risk.
+
+## New features / Improvements
+
+* The Azure Translator region is now a configurable setting (defaults to westeurope)
+  instead of being hard-coded.
+* Require `filelib.php` explicitly rather than relying on transitive loading.
+* Remove unreachable code after the language-file download.
+
 ## Version 2.405.0
 
 Marketplace release. Minimum supported Moodle raised to 4.5 LTS.
