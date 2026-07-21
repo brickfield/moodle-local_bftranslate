@@ -1,0 +1,531 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+namespace local_bftranslate;
+
+use local_bftranslate\deepl_translator;
+use local_bftranslate\azure_translator;
+use local_bftranslate\localtest_translator;
+
+/**
+ * Library class containing main functions.
+ *
+ * @package    local_bftranslate
+ * @author     Karen Holland <karen@brickfieldlabs.ie>
+ * @copyright  2025 onward Brickfield Education Labs Ltd, https://www.brickfield.ie
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class bftranslatelib {
+    /**
+     * Returns an array of installed external plugins.
+     *
+     * @return array
+     */
+    public static function get_plugins(): array {
+        // Get plugins from config.
+        $config = get_config('local_bftranslate');
+        $allplugins = \core_plugin_manager::instance()->get_plugins();
+        $plugins = [];
+
+        // If allowcoretranslation is enabled, then allow core plugins only.
+        foreach ($allplugins as $type => $list) {
+            foreach ($list as $name => $plugin) {
+                if (!empty($config->allowcoretranslation) && $plugin->is_standard()) {
+                    $plugins[] = $type . '_' . $name;
+                } else if (empty($config->allowcoretranslation) && !$plugin->is_standard()) {
+                    $plugins[] = $type . '_' . $name;
+                }
+            }
+        }
+
+        return $plugins;
+    }
+
+    /**
+     * Returns the values to populate the plugin dropdown.
+     *
+     * @return array
+     */
+    public static function get_plugins_dropdown_array(): array {
+        $bfplugins = static::get_plugins();
+
+        $plugins = [];
+        foreach ($bfplugins as $key => $bfplugin) {
+            // Lang strings only retrievable from installed plugins on full plugins list.
+            if (get_string_manager()->string_exists('pluginname', $bfplugin)) {
+                $plugins[$bfplugin] = get_string('pluginname', $bfplugin) . ' (' . $bfplugin . ')';
+            }
+        }
+        asort($plugins, SORT_STRING | SORT_FLAG_CASE);
+        $plugins = ['' => get_string('select')] + $plugins;
+
+        return $plugins;
+    }
+
+    /**
+     * Map specific lang code to the correct code for the specified API.
+     *
+     * @param string $api
+     * @param string $targetlang
+     * @return string
+     */
+    public static function get_language_mapped(string $api, string $targetlang): string {
+        // Maps the Moodle lang codes to the API equivalents.
+
+        // Deal with Workplace lang first, if submitted.
+        $wpfound = stripos($targetlang, '_wp');
+        if ($wpfound !== false) {
+            $targetlang = substr($targetlang, 0, -3);
+        }
+
+        if ($api == 'deepl') {
+            $languages = [
+                'en' => 'en-gb',
+                'pt' => 'pt-pt',
+                'pt_br' => 'pt-br',
+                'zh_cn' => 'zh-hans',
+                'zh_tw' => 'zh-hant',
+            ];
+        } else if ($api == 'azure') {
+            $languages = [
+                'ckb' => 'ku',
+                'fr_ca' => 'fr-ca',
+                'lg' => 'lug',
+                'mn' => 'mn-Cyrl',
+                'mn_mong' => 'mn-Mong',
+                'no' => 'nb',
+                'pt' => 'pt-pt',
+                'pt_br' => 'pt',
+                'sr_cr' => 'sr-Cyrl',
+                'sr_lt' => 'sr-Latn',
+                'zh_cn' => 'zh-Hans',
+                'zh_tw' => 'zh-Hant',
+            ];
+        }
+
+        if (isset($languages[$targetlang])) {
+            $targetlang = $languages[$targetlang];
+        }
+        return $targetlang;
+    }
+
+    /**
+     * Return an array of install languages.
+     *
+     * @return array
+     */
+    public static function get_installed_languages(): array {
+
+        $stringmgr = get_string_manager();
+        $languages = $stringmgr->get_list_of_translations();
+
+        return $languages;
+    }
+
+    /**
+     * Returns the values to populate the languages dropdown.
+     *
+     * @return array
+     */
+    public static function get_languages_dropdown_array(): array {
+
+        $languages = static::get_installed_languages();
+        $languages = array_merge(['' => get_string('select')], $languages);
+
+        return $languages;
+    }
+
+    /**
+     * Process the translation request.
+     *
+     * @param \local_bftranslate\displaytablestate $state The state object to use.
+     * @return array [$missing, $results, $existing, $existingtranslated, $errors]
+     */
+    public static function process_translation_from_state(\local_bftranslate\displaytablestate $state): array {
+        return static::process_translation(
+            $state->current_plugin(),
+            $state->targetlang,
+            $state->selectapi,
+            $state->batchlimit,
+            $state->showexisting
+        );
+    }
+
+    /**
+     * Process the translation request.
+     *
+     * @param string $plugin The plugin to translate.
+     * @param string $targetlang The language to translate to.
+     * @param string $api The API to use.
+     * @param int $batchlimit The batch limit to use (0 = unlimited).
+     * @param bool $showexisting Should existing translations be shown.
+     * @return array [$missing, $results, $existing, $existingtranslated, $errors]
+     */
+    public static function process_translation(
+        string $plugin,
+        string $targetlang,
+        string $api,
+        int $batchlimit,
+        bool $showexisting
+    ): array {
+        global $USER;
+
+        $config = get_config('local_bftranslate');
+        $info = \core_plugin_manager::instance()->get_plugin_info($plugin);
+        $langfilename = static::get_langfilename($plugin);
+        $path = $info->rootdir . '/lang/en/' . $langfilename;
+        $missing = [];
+        $results = [];
+        $existing = [];
+        $existingtranslated = $showexisting ? self::get_existing_translations($plugin, $targetlang, true) : [];
+        $errors = [];
+
+        if (!file_exists($path)) {
+            $errors[] = get_string('nofilefound', 'local_bftranslate');
+            return [$missing, $results, $existing, $existingtranslated, $errors];
+        }
+
+        // Check API / targetlang is supported on API.
+        $supported = static::lang_supported($api, $targetlang);
+        if (!$supported) {
+            $errors[] = get_string('langnotsupported', 'local_bftranslate', $targetlang);
+            return [$missing, $results, $existing, $existingtranslated, $errors];
+        }
+
+        // Load all strings from the English language pack.
+        $englishstrings = get_string_manager()->load_component_strings($plugin, 'en');
+        $targetstrings = get_string_manager()->load_component_strings($plugin, $targetlang);
+
+        $offset = 0;
+        if ($batchlimit > 0) {
+            // Loop through all english strings until missing strings are equal to batch limit, or all strings have been checked.
+            while ($offset < count($englishstrings)) {
+                $batchstrings = array_slice($englishstrings, $offset, $batchlimit);
+
+                foreach ($batchstrings as $key => $string) {
+                    // Don't allow translation of the following path string.
+                    if ($key == 'modulename_link') {
+                        continue;
+                    }
+                    // Check if string needs translating: is missing, empty, or identical to English in the target language.
+                    if (
+                        (!isset($targetstrings[$key])
+                        || empty(trim($targetstrings[$key])))
+                        || ($targetstrings[$key] == $string)
+                    ) {
+                        $missing[$key] = $string;
+                    } else if ($showexisting && isset($targetstrings[$key])) {
+                        $existing[$key] = $string;
+                    }
+                    if (count($missing) == $batchlimit) {
+                        break 2;
+                    }
+                }
+                $offset += $batchlimit;
+            }
+        } else {
+            foreach ($englishstrings as $key => $string) {
+                // Don't allow translation of the following path string.
+                if ($key == 'modulename_link') {
+                    continue;
+                }
+                // Check if string needs translating: is missing, empty, or identical to English in the target language.
+                if (
+                    (!isset($targetstrings[$key])
+                    || empty(trim($targetstrings[$key])))
+                    || ($targetstrings[$key] == $string)
+                ) {
+                    $missing[$key] = $string;
+                } else if ($showexisting && isset($targetstrings[$key])) {
+                    $existing[$key] = $string;
+                }
+            }
+        }
+
+        // Return early if there are no strings to be translated.
+        if (empty($missing)) {
+            return [$missing, $results, $existing, $existingtranslated, $errors];
+        }
+
+        $targetlang = static::get_language_mapped($api, $targetlang);
+        if ($api == 'azure') {
+            $work = new azure_translator($config->azure_api_key);
+            [$results, $errors] = $work->translate_batch($missing, $targetlang);
+        } else if ($api == 'localtest') {
+            $work = new localtest_translator();
+            [$results, $errors] = $work->translate_batch($missing, $targetlang);
+        } else {
+            $apikey = $api == 'deepl' ? $config->deepl_api_key : $config->deeplfree_api_key;
+            $work = new deepl_translator($apikey);
+            [$results, $errors] = $work->translate_batch($missing, $targetlang);
+        }
+
+        // Adding logging.
+        $stringcount = count($missing);
+        // Checking request status.
+        $errorkey = array_key_first($errors);
+        if (!empty($errors[$errorkey])) {
+            $status = get_string('request:failure', 'local_bftranslate', $errors[$errorkey]);
+        } else {
+            $status = get_string('request:success', 'local_bftranslate');
+        }
+        $event = \local_bftranslate\event\request_submitted::create([
+            'userid' => $USER->id,
+            'contextid' => SYSCONTEXTID,
+            'other' => [
+                'plugin' => $plugin,
+                'lang' => $targetlang,
+                'api' => $api,
+                'count' => $stringcount,
+                'status' => $status,
+            ],
+        ]);
+        $event->trigger();
+
+        return [$missing, $results, $existing, $existingtranslated, $errors];
+    }
+
+    /**
+     * Get langfile.
+     *
+     * @param string $plugin
+     * @param string $targetlang
+     * @return string
+     */
+    public static function get_langfile(string $plugin, string $targetlang): string {
+        global $CFG;
+        // Defence in depth: never let the language code or plugin build a path
+        // outside the lang directory, regardless of how they reached this method.
+        $targetlang = clean_param($targetlang, PARAM_SAFEDIR);
+        $plugin = clean_param($plugin, PARAM_COMPONENT);
+        // Determine the language file location.
+        $langfilename = static::get_langfilename($plugin);
+        $langdir = $CFG->dataroot . "/lang/" . $targetlang . "_local";
+        $langfile = "$langdir/$langfilename";
+
+        // Ensure the language directory exists.
+        if (!file_exists($langdir)) {
+            make_writable_directory($langdir);
+        }
+
+        return $langfile;
+    }
+
+    /**
+     * Get existing translations.
+     *
+     * @param string $plugin
+     * @param string $targetlang
+     * @param bool $includeoriginals
+     * @return array
+     */
+    public static function get_existing_translations(string $plugin, string $targetlang, bool $includeoriginals): array {
+
+        $langfile = self::get_langfile($plugin, $targetlang);
+
+        // Read existing strings using file parsing.
+        $existingtranslated = [];
+        if (file_exists($langfile)) {
+            $content = file_get_contents($langfile);
+            preg_match_all("/\\\$string\\['(.+?)'\\]\\s*=\\s*'(.*?)';/s", $content, $matches, PREG_SET_ORDER);
+            foreach ($matches as $match) {
+                // Do some processing on existing string here, to match translations on single quotes status.
+                $match[2] = str_replace(['\\\''], ['\''], $match[2]);
+                $existingtranslated[$match[1]] = $match[2];
+            }
+        }
+
+        // Include original translations.
+        if ($includeoriginals) {
+            // Find and merge all target lang strings, keeping any customised strings.
+            $stringman  = get_string_manager();
+            $originaltranslations = $stringman->load_component_strings($plugin, $targetlang, true, true);
+            $existingtranslated = array_replace($originaltranslations, $existingtranslated);
+        }
+
+        return $existingtranslated;
+    }
+
+    /**
+     * Handles saving the translations to the language file.
+     *
+     * @param array $translations
+     * @param string $plugin
+     * @param string $targetlang
+     * @param bool $showexisting
+     * @return void
+     */
+    public static function save_translation(array $translations, string $plugin, string $targetlang, bool $showexisting): void {
+
+        if (!$showexisting) {
+            $existingstrings = self::get_existing_translations($plugin, $targetlang, false);
+            // Merge and sort translations, ensuring 'pluginname' remains first.
+            // $existingstrings go last in array_merge to retain any existing customisations already done.
+            $translations = array_merge($translations, $existingstrings);
+        } else {
+            // Using array diff to remove any strings unchanged from originals.
+            // This is to avoid saving original translations as custom translations.
+            $stringman  = get_string_manager();
+            $originaltranslations = $stringman->load_component_strings($plugin, $targetlang, true, true);
+            $translations = array_diff($translations, $originaltranslations);
+        }
+
+        if (isset($translations['pluginname'])) {
+            $pluginname = $translations['pluginname'];
+            unset($translations['pluginname']);
+            ksort($translations);
+            $translations = ['pluginname' => $pluginname] + $translations;
+        } else {
+            ksort($translations);
+        }
+
+        $content = static::generate_strings_file($translations, $plugin, $targetlang, false);
+
+        $langfile = self::get_langfile($plugin, $targetlang);
+
+        // Write sorted content to the language file.
+        file_put_contents($langfile, $content);
+
+        // Purge language cache so strings aren't re-processed.
+        purge_caches(['lang' => true]);
+    }
+
+    /**
+     * Generate a PHP strings file given an array of strings and a plugin name.
+     *
+     * @param array $strings The strings to include, in the form [key] => string
+     * @param string $plugin The plugin component name (ex local_bftranslate).
+     * @param string $targetlang Target language.
+     * @param bool $download If this is for download do more processing.
+     * @return string The PHP code for a strings file.
+     */
+    public static function generate_strings_file(array $strings, string $plugin, string $targetlang, bool $download): string {
+
+        $stringman  = get_string_manager();
+        $originaltranslations = $stringman->load_component_strings($plugin, $targetlang, true, true);
+        if (!$download) {
+            // When saving translations, we only have to save new or changed translations.
+            // This is to avoid saving original translations as custom translations.
+            foreach ($strings as $k => $v) {
+                if (isset($originaltranslations[$k]) && $originaltranslations[$k] == $v) {
+                    unset($strings[$k]);
+                }
+            }
+        } else {
+            // When downloading translations, we have to include everything (someone's likely replacing their lang string file).
+            $strings = array_merge($originaltranslations, $strings);
+        }
+
+        $copyright = get_string('copyright_text', 'local_bftranslate');
+
+        // Prepare language file content.
+        $content = "<?php\n";
+        $content .= "// This file is part of Moodle - http://moodle.org/\n//\n";
+        $content .= "// Moodle is free software: you can redistribute it and/or modify\n";
+        $content .= "// it under the terms of the GNU General Public License as published by\n";
+        $content .= "// the Free Software Foundation, either version 3 of the License, or\n";
+        $content .= "// (at your option) any later version.\n//\n";
+        $content .= "// Moodle is distributed in the hope that it will be useful,\n";
+        $content .= "// but WITHOUT ANY WARRANTY; without even the implied warranty of\n";
+        $content .= "// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n";
+        $content .= "// GNU General Public License for more details.\n//\n";
+        $content .= "// You should have received a copy of the GNU General Public License\n";
+        $content .= "// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.\n\n";
+        $content .= "/**\n * Language strings for {$plugin}.\n";
+        $content .= " *\n * @package    {$plugin}\n * @category   string\n";
+        $content .= " * @copyright  {$copyright}\n * @license    ";
+        $content .= "http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later\n */\n\n";
+        $content .= "defined('MOODLE_INTERNAL') || die();\n\n";
+
+        if (isset($strings['pluginname'])) {
+            $pluginname = $strings['pluginname'];
+            unset($strings['pluginname']);
+            ksort($strings);
+            $strings = ['pluginname' => $pluginname] + $strings;
+        } else {
+            ksort($strings);
+        }
+
+        foreach ($strings as $key => $value) {
+            // Restore Moodle placeholders that may have been encoded in transit.
+            $value = str_replace(['a-&gt;', '%7B', '%7D;'], ['a->', '{', '}'], $value);
+            // Normalise typographic quotes to their plain equivalents.
+            // "\x60" is a backtick, written as an escape to avoid a literal backtick in source.
+            $value = str_replace(['′', "\x60", '″'], ["'", "'", '"'], $value);
+            // Emit the key and value as safely escaped single-quoted PHP literals.
+            // Keys are partly request-controlled, so var_export() is used to prevent
+            // any break-out from the generated (and later executed) language file.
+            $content .= '$string[' . var_export($key, true) . '] = ' . var_export($value, true) . ";\n";
+        }
+
+        return $content;
+    }
+
+    /**
+     * Handles lang file name for plugins.
+     *
+     * @param string $plugin
+     * @return string $langfilename
+     */
+    public static function get_langfilename(string $plugin): string {
+        $parts = explode('_', $plugin, 2);
+
+        if ($parts[0] == 'mod') {
+            $plugin = $parts[1] . '.php';
+        } else {
+            $plugin = $plugin . '.php';
+        }
+
+        return $plugin;
+    }
+
+    /**
+     * Handles checking lang support for apis.
+     *
+     * @param string $api
+     * @param string $targetlang
+     * @return bool
+     */
+    public static function lang_supported(string $api, string $targetlang): bool {
+        // Check targetlang is supported on API.
+
+        $config = get_config('local_bftranslate');
+        $test = ['test' => 'test'];
+        $supported = false;
+
+        $targetlang = static::get_language_mapped($api, $targetlang);
+        if ($api == 'azure') {
+            $work = new azure_translator($config->azure_api_key);
+            [$results, $errors] = $work->translate_batch($test, $targetlang);
+            $errorfound = (isset($errors['test']) && stripos($errors['test'], '400036'));
+            if ($errorfound === false) {
+                return true;
+            }
+        } else if ($api == 'localtest') {
+            return true;
+        } else {
+            $apikey = $api == 'deepl' ? $config->deepl_api_key : $config->deeplfree_api_key;
+            $work = new deepl_translator($apikey);
+            [$results, $errors] = $work->translate_batch($test, $targetlang);
+            $errorfound = (isset($errors['test']) && stripos($errors['test'], 'Value for \'target_lang\' not supported.'));
+            if ($errorfound === false) {
+                return true;
+            }
+        }
+
+        return $supported;
+    }
+}

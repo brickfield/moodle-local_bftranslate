@@ -1,0 +1,83 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_bftranslate/branding
+
+    TODO describe template branding
+
+    Example context (json):
+    {
+    }
+}}
+
+<div id="local_bftranslate_branding">
+    <div id="local_bftranslate_brandingwrapper">
+        <div id="local_bftranslate_brickfield_head">
+            <h2>{{#str}} branding:like, local_bftranslate {{/str}}</h2>
+            {{#pix}} bflogo, local_bftranslate, {{#str}} branding:bflogo, local_bftranslate {{/str}} {{/pix}}
+        </div>
+        <ul id="local_bftranslate_bflinks">
+            <li>
+                <a href="https://brickfield.ie/tra-toolkit?utm_source=tra-plugin">
+                    {{#pix}} toolkit, local_bftranslate,
+                        {{#str}} branding:toolkit, local_bftranslate {{/str}}
+                    {{/pix}}
+                </a>
+            </li>
+            <li>
+                <a href="https://brickfield.ie/tra-training?utm_source=tra-plugin">
+                    {{#pix}} trainingacademy, local_bftranslate,
+                        {{#str}} branding:academy, local_bftranslate {{/str}}
+                    {{/pix}}
+                </a>
+            </li>
+            <li>
+                <a href="https://brickfield.ie/tra-audit?utm_source=tra-plugin">
+                    {{#pix}} audit, local_bftranslate,
+                        {{#str}} branding:audit, local_bftranslate {{/str}}
+                    {{/pix}}
+                </a>
+            </li>
+            <li>
+                <a href="https://brickfield.ie/tra-ux?utm_source=tra-plugin">
+                    {{#pix}} ux, local_bftranslate,
+                        {{#str}} branding:ux, local_bftranslate {{/str}}
+                    {{/pix}}
+                </a>
+            </li>
+            <li>
+                <a href="https://brickfield.ie/tra-skills?utm_source=tra-plugin">
+                    {{#pix}} skills, local_bftranslate,
+                        {{#str}} branding:skills, local_bftranslate {{/str}}
+                    {{/pix}}
+                </a>
+            </li>
+            <li>
+                <a href="https://brickfield.ie/tra-assessment?utm_source=tra-plugin">
+                    {{#pix}} assessment, local_bftranslate,
+                        {{#str}} branding:assessment, local_bftranslate {{/str}}
+                    {{/pix}}
+                </a>
+            </li>
+        </ul>
+        <div id="local_bftranslate_contact">
+            <a href="https://brickfield.ie/tra-contact-us?utm_source=tra-plugin" class="btn btn-primary">
+                {{#str}} branding:contact, local_bftranslate {{/str}}
+            </a>
+        </div>
+    </div>
+</div>
