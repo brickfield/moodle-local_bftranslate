@@ -29,6 +29,7 @@ use local_bftranslate\displaytable;
 
 require(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
+require_once($CFG->libdir . '/filelib.php');
 
 $doaction = optional_param('doaction', '', PARAM_TEXT);
 $stateencoded = optional_param('state', '', PARAM_TEXT);
@@ -76,8 +77,8 @@ if (!empty($doaction) && !empty($state)) {
 
         case 'switchview-langstring':
             $content = bftranslatelib::generate_strings_file($state->results, $state->current_plugin(), $state->targetlang, true);
+            // The send_file() call terminates the request, so nothing after it runs.
             send_file($content, $state->current_plugin() . '.php', null, 0, true, true);
-            new displaytable($state, $url, $state->showexisting);
             break;
 
         case 'nextplugin':

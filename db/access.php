@@ -27,7 +27,12 @@ defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
     'local/bftranslate:viewall' => [
-        'captype' => 'read',
+        // Authorises writes (saving site-wide custom language strings, purging the
+        // language cache) and can persist strings rendered across the site, so it
+        // is a write capability and carries XSS/config risk. Granted to no
+        // archetype: only site administrators hold it unless explicitly delegated.
+        'riskbitmask' => RISK_XSS | RISK_CONFIG,
+        'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [
             'user' => CAP_PREVENT,

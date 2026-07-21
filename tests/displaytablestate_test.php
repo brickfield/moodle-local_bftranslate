@@ -34,8 +34,11 @@ final class displaytablestate_test extends \advanced_testcase {
      * @return void
      */
     public function test_encode_decode_round_trip(): void {
+        $this->resetAfterTest();
+        // Allow core plugins so the requested (core) components pass the decode allow-list.
+        set_config('allowcoretranslation', 1, 'local_bftranslate');
         $state = new displaytablestate(
-            ['local_bftranslate', 'mod_forum'],
+            ['mod_assign', 'mod_forum'],
             1,
             'fr',
             ['greeting' => 'Hello'],
@@ -49,7 +52,7 @@ final class displaytablestate_test extends \advanced_testcase {
 
         $decoded = displaytablestate::instance_from_encoded($state->encode());
 
-        $this->assertSame(['local_bftranslate', 'mod_forum'], $decoded->requestedplugins);
+        $this->assertSame(['mod_assign', 'mod_forum'], $decoded->requestedplugins);
         $this->assertSame(1, $decoded->currentpluginindex);
         $this->assertSame('fr', $decoded->targetlang);
         $this->assertSame('deepl', $decoded->selectapi);
@@ -78,6 +81,7 @@ final class displaytablestate_test extends \advanced_testcase {
      * @return void
      */
     public function test_instance_from_encoded_sanitises_targetlang_and_plugins(): void {
+        $this->resetAfterTest();
         $state = new displaytablestate(
             ['../../evil', 'local_bftranslate'],
             0,
@@ -93,11 +97,41 @@ final class displaytablestate_test extends \advanced_testcase {
 
         $decoded = displaytablestate::instance_from_encoded($state->encode());
 
-        // The traversal plugin is dropped by PARAM_COMPONENT; the valid one remains.
+        // The traversal plugin is dropped by PARAM_COMPONENT; the valid (non-core) one remains.
         $this->assertSame(['local_bftranslate'], $decoded->requestedplugins);
         // PARAM_SAFEDIR strips the slashes and dots from the language code.
         $this->assertSame('etc', $decoded->targetlang);
         $this->assertStringNotContainsString('..', $decoded->targetlang);
+    }
+
+    /**
+     * Decoding strips scripts/dangerous markup from the translation values, so the
+     * translations form-field cleaning cannot be bypassed through the state blob.
+     *
+     * @covers \local_bftranslate\displaytablestate::instance_from_encoded
+     * @return void
+     */
+    public function test_instance_from_encoded_sanitises_values(): void {
+        $this->resetAfterTest();
+        $state = new displaytablestate(
+            ['local_bftranslate'],
+            0,
+            'en',
+            ['pluginname' => '<img src=x onerror=alert(1)>'],
+            ['pluginname' => '<script>alert(1)</script>keep'],
+            [],
+            [],
+            'localtest',
+            0,
+            false
+        );
+
+        $decoded = displaytablestate::instance_from_encoded($state->encode());
+
+        $this->assertStringNotContainsString('onerror', $decoded->source['pluginname']);
+        $this->assertStringNotContainsString('<script', $decoded->results['pluginname']);
+        // Benign text content is preserved.
+        $this->assertStringContainsString('keep', $decoded->results['pluginname']);
     }
 
     /**
